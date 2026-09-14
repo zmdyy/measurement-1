@@ -1,5 +1,5 @@
 {
-  "coin": { "w": 238, "h": 240, "round": true },
+  "coin": { "w": 240, "h": 240, "round": true },
   "eraser": { "w": 420, "h": 126 },
   "pen": { "w": 480, "h": 38 },
   "battery": { "w": 420, "h": 118 },
