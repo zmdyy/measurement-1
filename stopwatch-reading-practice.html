@@ -1718,8 +1718,8 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
 
         <div class="rq-panel" id="rqPanel2">
           <div class="rq-kicker">第 2 站 · 练习</div>
-          <div class="rq-title">读出物体有多长</div>
-          <div class="rq-desc">先看 <b>左端读数</b>，再看 <b>右端读数</b>，最后用“右端 − 左端”得到长度。</div>
+          <div class="rq-title">读出生活物品有多长</div>
+          <div class="rq-desc">尺上是硬币、橡皮、电池这些真实物品。先看 <b>左端读数</b>，再看 <b>右端读数</b>，最后用“右端 − 左端”得到长度。</div>
           <div class="rq-mini-rule">① 看左端　② 看右端　③ 相减　④ 写单位 cm</div>
           <div class="rq-progress" id="rulerQ2Progress">连对 0 / 3 题</div>
           <button id="rulerGo3Btn" class="btn primary rq-next-btn hidden">✓ 连对 3 题，去火眼金睛 →</button>
@@ -2630,19 +2630,35 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     return "url(#" + id + ")";
   }
 
+  /* 生活实物照片（透明底）。宽度始终等于被测长度，高度按照片比例，过高则从顶部裁切。 */
+  var RULER_PHOTOS = {
+    coin:    { src: "assets/ruler-objects/coin.png",    w: 238, h: 240, round: true },
+    eraser:  { src: "assets/ruler-objects/eraser.png",  w: 420, h: 126 },
+    pen:     { src: "assets/ruler-objects/pen.png",     w: 480, h: 38 },
+    battery: { src: "assets/ruler-objects/battery.png", w: 420, h: 118 },
+    usb:     { src: "assets/ruler-objects/usb.png",     w: 420, h: 122 },
+    key:     { src: "assets/ruler-objects/key.png",     w: 420, h: 129 },
+    clip:    { src: "assets/ruler-objects/clip.png",    w: 400, h: 105 },
+    pencil:  { src: "assets/ruler-objects/pencil.png",  w: 480, h: 50 },
+    book:    { src: "assets/ruler-objects/book.png",    w: 400, h: 230, maxHcm: 3.5 },
+    finger:  { src: "assets/ruler-objects/finger.png",  w: 83,  h: 280, maxHcm: 4.6 }
+  };
   var RULER_ITEMS = [
-    { id: "eraser", name: "橡皮", min: 2.4, max: 5.4 },
-    { id: "pen", name: "签字笔", min: 12.4, max: 14.6 },
     { id: "coin", name: "一元硬币", min: 2.5, max: 2.5 },
-    { id: "chopsticks", name: "筷子", min: 10.5, max: 14.5 },
-    { id: "book", name: "课本", min: 7.2, max: 13.2 },
-    { id: "block", name: "木块", min: 2.8, max: 8.6 }
+    { id: "clip", name: "回形针", min: 2.8, max: 3.2 },
+    { id: "eraser", name: "4B橡皮", min: 3.8, max: 5.2 },
+    { id: "usb", name: "U盘", min: 4.2, max: 5.8 },
+    { id: "battery", name: "5号电池", min: 5.00, max: 5.05 },
+    { id: "key", name: "钥匙", min: 5.0, max: 6.5 },
+    { id: "book", name: "练习簿短边", min: 12.8, max: 13.5 },
+    { id: "pen", name: "中性笔", min: 13.8, max: 14.5 },
+    { id: "pencil", name: "铅笔", min: 14.0, max: 14.6 }
   ];
   var RULER_EST_ITEMS = [
     { id: "span", name: "自己的一拃（拇指到中指张开）", min: 14.8, max: 15.0, unit: "cm" },
     { id: "door", name: "门口到讲台", min: 4, max: 8, unit: "m", noRuler: true },
     { id: "pencil", name: "一支新铅笔（未削）", min: 14.0, max: 14.6, unit: "cm" },
-    { id: "book", name: "物理课本", min: 12.8, max: 13.5, unit: "cm", label: "物理" },
+    { id: "book", name: "学生练习簿短边", min: 12.8, max: 13.5, unit: "cm" },
     { id: "finger", name: "一指的宽度", min: 1.5, max: 1.9, unit: "cm" }
   ];
   var rulerEstIdx = -1;
@@ -2650,7 +2666,35 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   var rulerEstNoRuler = false;
   var rulerBookLabel = "语文";
 
+  function drawRulerPhoto(svg, shape, x1, x2) {
+    var photo = RULER_PHOTOS[shape];
+    if (!photo) return false;
+    var objW = Math.max(4, x2 - x1);
+    var isMain = svg.getAttribute("id") === "rulerSvg";
+    var faceY = isMain ? RULER_FACE_Y : RULER_ZOOM_FACE_Y;
+    var pxPerCm = isMain ? RULER_PX_PER_CM : 80;
+    var h = rulerPickHeight(shape, objW, pxPerCm);
+    var y = faceY - h;
+    el("ellipse", {
+      cx: (x1 + x2) / 2,
+      cy: faceY + 1.4,
+      rx: objW * (photo.round ? 0.40 : 0.47),
+      ry: Math.max(2.0, Math.min(6.5, h * 0.055)),
+      fill: "rgba(15,23,42,0.18)"
+    }, svg);
+    var img = el("image", {
+      href: photo.src,
+      x: x1,
+      y: y,
+      width: objW,
+      height: h,
+      preserveAspectRatio: "xMidYMax slice"
+    }, svg);
+    img.setAttributeNS("http://www.w3.org/1999/xlink", "href", photo.src);
+    return true;
+  }
   function drawRulerShape(svg, shape, x1, x2, objY, objH) {
+    if (drawRulerPhoto(svg, shape, x1, x2)) return;
     var objW = Math.max(4, x2 - x1);
     var cy = objY + objH / 2;
     var top = objY + 3;
@@ -2771,11 +2815,22 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     el("text", { x: mid, y: ay + 22, "text-anchor": "middle", "font-size": 15, "font-weight": "800", fill: "#b91c1c", "font-family": "Microsoft YaHei, sans-serif" }, svg).textContent = "一拃 ≈ 15 cm";
   }
 
-  function rulerPickHeight(shape) {
-    if (shape === "coin") return rulerLen * RULER_PX_PER_CM;
-    if (shape === "chopsticks") return 28;
-    if (shape === "finger") return 22;
-    return 38;
+  function rulerPickHeight(shape, widthPx, pxPerCm) {
+    pxPerCm = pxPerCm || RULER_PX_PER_CM;
+    if (widthPx == null) widthPx = rulerLen * pxPerCm;
+    var photo = RULER_PHOTOS[shape];
+    if (!photo) {
+      if (shape === "span" || shape === "door") return 0;
+      if (shape === "chopsticks") return 28;
+      if (shape === "finger") return 22;
+      if (shape === "coin") return widthPx;
+      return 38;
+    }
+    if (photo.round) return widthPx;
+    var h = widthPx * (photo.h / photo.w);
+    var maxH = (photo.maxHcm || 3.8) * pxPerCm;
+    if (h > maxH) h = maxH;
+    return h;
   }
   function addRulerObject(mode, forcedItem) {
     var item = forcedItem || RULER_ITEMS[Math.floor(Math.random() * RULER_ITEMS.length)];
@@ -2829,7 +2884,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     var zoomPx = 80;
     var viewCm = (mode === "mm1") ? 3 : 5;
     var viewW = viewCm * zoomPx;
-    var zoomH = (rulerShape === "coin") ? (rulerLen * zoomPx) : 44.8;
+    var zoomH = rulerPickHeight(rulerShape, rulerLen * zoomPx, zoomPx);
     var zoomY = RULER_ZOOM_FACE_Y - zoomH;
     var minY = Math.min(0, zoomY - 12);
     var viewH = 200 - minY;
@@ -2887,7 +2942,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     document.getElementById("rulerFeedback").textContent = "";
     rulerRevealed = false;
     document.getElementById("rulerStatus").className = "ruler-status-v3 ready";
-    document.getElementById("rulerStatus").textContent = "请读出刻度尺上物体的长度。";
+    document.getElementById("rulerStatus").textContent = "请读出刻度尺上「" + rulerItemName + "」的长度。";
     document.getElementById("rulerLengthInput").focus();
   }
 
@@ -4026,6 +4081,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   function rulerJourneyStageLabel(n){
     var s=document.getElementById('rulerStatus'); if(!s)return;
     var msg=['','先观察：认清单位、量程和分度值。','请读出刻度尺上物体的长度。','找出小刚的错误。','先估一估，再用刻度尺核对。','比较 1 mm 和 1 cm 的精细程度。'][n]||'';
+    if(n===2&&rulerItemName) msg='请读出刻度尺上「'+rulerItemName+'」的长度。';
     s.className='ruler-status-v3 '+(n===1||n===5?'idle':'ready');
     s.textContent=msg;
   }
