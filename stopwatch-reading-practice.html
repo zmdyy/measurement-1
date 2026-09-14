@@ -2541,14 +2541,33 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
      ============================== */
   var RULER_PX_PER_CM = 60;
   var RULER_MARGIN = 50;
+  var RULER_FACE_Y = 68;
+  var RULER_ZOOM_FACE_Y = 55;
   var rulerMode = "mm1";
   var rulerLeft = 0, rulerLen = 0, rulerShape = "rect", rulerRevealed = false;
+  var rulerOkCount = 0, rulerErrCount = 0;
 
   var rulerSvg = document.getElementById("rulerSvg");
   var rulerZoomRightSvg = document.getElementById("rulerZoomRight");
 
   function rulerCmToX(cm) {
     return RULER_MARGIN + cm * RULER_PX_PER_CM;
+  }
+  function updateRulerStats() {
+    var a = document.getElementById("rulerOkCountV3");
+    var b = document.getElementById("rulerErrCountV3");
+    if (a) a.textContent = rulerOkCount;
+    if (b) b.textContent = rulerErrCount;
+  }
+  function rulerFitMainViewBox(objH) {
+    var pad = 14;
+    var minY = 0;
+    if (objH && objH > RULER_FACE_Y - pad) minY = RULER_FACE_Y - objH - pad;
+    if (!rulerScaleVisible) {
+      rulerSvg.setAttribute("viewBox", "0 " + minY + " 1000 " + (450 - minY));
+    } else {
+      rulerSvg.setAttribute("viewBox", "0 " + minY + " 1000 " + (250 - minY));
+    }
   }
 
   var rulerScaleVisible = true;
@@ -2668,7 +2687,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     } else if (shape === "coin") {
       var r = objW / 2;
       var cx = (x1 + x2) / 2;
-      var restY = (svg.getAttribute("id") === "rulerSvg") ? 68 : 55;
+      var restY = (svg.getAttribute("id") === "rulerSvg") ? RULER_FACE_Y : RULER_ZOOM_FACE_Y;
       var cyCoin = restY - r;
       var metal = rulerGrad(svg, "rgCoin", "#fde68a", "#d97706", true);
       el("circle", { cx: cx, cy: cyCoin, r: r, fill: metal, stroke: "#b45309", "stroke-width": 1.6 }, svg);
@@ -2777,18 +2796,20 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     var maxL = (rulerEstUnit === "cm") ? Math.max(0, Math.floor(15 - rulerLen - 0.05)) : 0;
     rulerLeft = Math.floor(Math.random() * (maxL + 1));
     if (rulerShape === "coin") rulerLen = 2.5;
-    if (rulerEstNoRuler) { syncRulerZoom(); return; }
+    if (rulerEstNoRuler) { rulerFitMainViewBox(0); syncRulerZoom(); return; }
     var x1 = rulerCmToX(rulerLeft);
     var x2 = rulerCmToX(rulerLeft + Math.min(rulerLen, 15));
     var objH = rulerPickHeight(rulerShape);
-    var objY = 68 - objH;
+    var objY = RULER_FACE_Y - objH;
+    rulerFitMainViewBox(rulerShape === "span" ? 0 : objH);
     if (rulerShape !== "span") drawRulerShape(rulerSvg, rulerShape, x1, x2, objY, objH);
     if (rulerScaleVisible) {
       if (rulerShape !== "span") {
-        el("line", { x1: x1, y1: 5, x2: x1, y2: 68, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "4,2" }, rulerSvg);
-        el("line", { x1: x2, y1: 5, x2: x2, y2: 68, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "4,2" }, rulerSvg);
+        var lineTop = Math.min(5, objY);
+        el("line", { x1: x1, y1: lineTop, x2: x1, y2: RULER_FACE_Y, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "4,2" }, rulerSvg);
+        el("line", { x1: x2, y1: lineTop, x2: x2, y2: RULER_FACE_Y, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "4,2" }, rulerSvg);
       }
-    } else {
+    } else if (rulerShape === "span") {
       drawLengthRef(rulerSvg);
     }
     syncRulerZoom();
@@ -2808,12 +2829,15 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     var zoomPx = 80;
     var viewCm = (mode === "mm1") ? 3 : 5;
     var viewW = viewCm * zoomPx;
-    var viewH = 200;
+    var zoomH = (rulerShape === "coin") ? (rulerLen * zoomPx) : 44.8;
+    var zoomY = RULER_ZOOM_FACE_Y - zoomH;
+    var minY = Math.min(0, zoomY - 12);
+    var viewH = 200 - minY;
     var centerX = viewW / 2;
-    svg.setAttribute("viewBox", "0 0 " + viewW + " " + viewH);
+    svg.setAttribute("viewBox", "0 " + minY + " " + viewW + " " + viewH);
 
-    el("rect", { x: 0, y: 0, width: viewW, height: viewH, fill: "#fff" }, svg);
-    el("rect", { x: 0, y: 55, width: viewW, height: 65, rx: 3, fill: "#f5f5dc", stroke: "#b8860b", "stroke-width": 1.5 }, svg);
+    el("rect", { x: 0, y: minY, width: viewW, height: viewH, fill: "#fff" }, svg);
+    el("rect", { x: 0, y: RULER_ZOOM_FACE_Y, width: viewW, height: 65, rx: 3, fill: "#f5f5dc", stroke: "#b8860b", "stroke-width": 1.5 }, svg);
 
     var stepsPerCm = (mode === "mm1") ? 10 : 1;
     var leftCm = posCm - viewCm / 2;
@@ -2831,7 +2855,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
       if (isCm) { len = 40; sw = 2.5; sc = "#000"; }
       else if (isHalf) { len = 28; sw = 1.5; sc = "#333"; }
       else { len = 18; sw = 1; sc = "#666"; }
-      el("line", { x1: x, y1: 55, x2: x, y2: 55 + len, stroke: sc, "stroke-width": sw, "stroke-linecap": "round" }, svg);
+      el("line", { x1: x, y1: RULER_ZOOM_FACE_Y, x2: x, y2: RULER_ZOOM_FACE_Y + len, stroke: sc, "stroke-width": sw, "stroke-linecap": "round" }, svg);
       if (isCm) {
         el("text", {
           x: x, y: 112, "text-anchor": "middle", "dominant-baseline": "central",
@@ -2841,17 +2865,16 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     }
 
     var objX1 = centerX - rulerLen * zoomPx;
-    var zoomH = (rulerShape === "coin") ? (rulerLen * zoomPx) : 44.8;
-    var zoomY = 55 - zoomH;
     drawRulerShape(svg, rulerShape, objX1, centerX, zoomY, zoomH);
     /* 右端读数辅助细线：对齐物体右缘（放大图中心） */
+    var markTop = Math.min(minY + 4, zoomY);
     el("line", {
-      x1: centerX, y1: 4, x2: centerX, y2: 128,
+      x1: centerX, y1: markTop, x2: centerX, y2: 128,
       stroke: "#dc2626", "stroke-width": 1.15, "stroke-dasharray": "3.5,2.5",
       "stroke-linecap": "round", opacity: "0.95"
     }, svg);
     el("polygon", {
-      points: (centerX - 4) + ",4 " + (centerX + 4) + ",4 " + centerX + ",11",
+      points: (centerX - 4) + "," + markTop + " " + (centerX + 4) + "," + markTop + " " + centerX + "," + (markTop + 7),
       fill: "#dc2626", opacity: "0.9"
     }, svg);
   }
@@ -2908,8 +2931,8 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     document.getElementById("rulerFeedback").className = "feedback " + cls;
     document.getElementById("rulerFeedback").textContent = msg;
     if (!rulerRevealed) {
-      if (diff <= tol) okCount++; else errCount++;
-      updateStats();
+      if (diff <= tol) rulerOkCount++; else rulerErrCount++;
+      updateRulerStats();
     }
   }
 
@@ -2936,7 +2959,12 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
         "\u2463 \u8BFB\u6570\u65F6\u9700\u4F30\u8BFB\u5230 0.1cm\u3002";
     }
     drawRulerMain(rulerMode);
-    addRulerObject(rulerMode);
+    if (typeof rulerJourneyState !== "undefined" && rulerJourneyState.cur === 4) {
+      var estItem = (rulerEstIdx >= 0) ? RULER_EST_ITEMS[rulerEstIdx] : RULER_EST_ITEMS[0];
+      addRulerObject(rulerMode, estItem);
+    } else {
+      addRulerObject(rulerMode);
+    }
   }
 
   var rulerModeBtns = document.querySelectorAll("#rulerModeToggle .mode-btn");
@@ -3093,6 +3121,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   render(true);
   updateButtons();
   updateStats();
+  updateRulerStats();
 
   /* ============================================================
      【素养升级】扩展状态与工具
@@ -4183,10 +4212,12 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     var x2 = rulerCmToX(rulerLeft + rulerLen);
     if (rulerEstNoRuler || rulerShape === "span") return;
     var objH = rulerPickHeight(rulerShape);
-    var objY = 68 - objH;
+    var objY = RULER_FACE_Y - objH;
+    rulerFitMainViewBox(objH);
     drawRulerShape(rulerSvg, rulerShape, x1, x2, objY, objH);
-    el("line", { x1: x1, y1: 5, x2: x1, y2: 68, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "4,2" }, rulerSvg);
-    el("line", { x1: x2, y1: 5, x2: x2, y2: 68, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "4,2" }, rulerSvg);
+    var lineTop = Math.min(5, objY);
+    el("line", { x1: x1, y1: lineTop, x2: x1, y2: RULER_FACE_Y, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "4,2" }, rulerSvg);
+    el("line", { x1: x2, y1: lineTop, x2: x2, y2: RULER_FACE_Y, stroke: "#dc2626", "stroke-width": 1.5, "stroke-dasharray": "4,2" }, rulerSvg);
   }
   function rulerJourneyEstimate(){
     var inp=document.getElementById("rulerGuessInput"),fb=document.getElementById("rulerEstFeedback");if(!inp||!fb)return;
@@ -4229,11 +4260,9 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   });
   document.getElementById('rulerCheckBtn').addEventListener('click',function(){setTimeout(rulerJourneyAfterCheck,0);});
   document.getElementById('rulerRandomBtn').addEventListener('click',function(){setTimeout(function(){rulerJourneyStageLabel(rulerJourneyState.cur);},0);});
-  document.getElementById('rulerClearStatsV3').addEventListener('click',function(){okCount=0;errCount=0;updateStats();document.getElementById('rulerOkCountV3').textContent=0;document.getElementById('rulerErrCountV3').textContent=0;});
-
-  /* 原有刻度尺判题更新后，同步到新 UI 的统计显示 */
-  var originalUpdateStats=updateStats;
-  updateStats=function(){originalUpdateStats();var a=document.getElementById('rulerOkCountV3'),b=document.getElementById('rulerErrCountV3');if(a)a.textContent=okCount;if(b)b.textContent=errCount;};
+  document.getElementById('rulerClearStatsV3').addEventListener('click',function(){
+    rulerOkCount=0;rulerErrCount=0;updateRulerStats();
+  });
 
   /* 模式切换后重建“认刻度”问题，保持教学内容与刻度档位一致 */
   document.querySelectorAll('#rulerModeToggle .mode-btn').forEach(function(b){b.addEventListener('click',function(){setTimeout(function(){if(rulerJourneyState.cur===1)rulerJourneyBuildQa();},0);});});
