@@ -1395,6 +1395,26 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   min-width:96px !important;height:42px !important;padding:8px 14px !important;font-size:14px !important;border-radius:9px !important;margin-left:0 !important;
 }
 
+
+  /* 电流表：基础读数练习，独立于其他仪器的学习旅程。 */
+  #tab-ammeter { overflow:auto; }
+  .amm-layout { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:24px; padding:20px 28px; }
+  .amm-stage { min-height:0; display:flex; align-items:center; justify-content:center; background:#fff; border-radius:16px; }
+  #ammSvg { display:block; width:100%; height:100%; max-height:720px; min-height:360px; }
+  .amm-card { align-self:center; background:white; padding:24px; border-radius:16px; display:flex; flex-direction:column; gap:18px; }
+  .amm-card h2 { font-size:24px; }
+  .amm-muted { color:#64748b; font-size:14px; line-height:1.7; }
+  .amm-card select { width:100%; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; margin-top:8px; background:white; }
+  .amm-entry { display:flex; align-items:center; gap:10px; margin-top:8px; }
+  #ammInput { width:100%; min-width:0; padding:12px; border:2px solid #cbd5e1; border-radius:8px; font-size:24px; }
+  #ammInput:focus { outline:2px solid #1e6fd9; outline-offset:2px; }
+  #ammFeedback { min-height:62px; padding:10px; border-radius:8px; line-height:1.6; font-size:15px; }
+  #ammFeedback.good { background:#dcfce7; color:#166534; }
+  #ammFeedback.bad { background:#fee2e2; color:#991b1b; }
+  #ammFeedback.hint { background:#eff6ff; color:#1e40af; }
+  .amm-stats { display:flex; align-items:center; gap:12px; border-top:1px solid #e2e8f0; padding-top:16px; font-size:14px; }
+  .amm-stats button { margin-left:auto; border:0; background:transparent; color:#64748b; padding:8px; }
+  @media(max-width:800px) { .tabs { flex-wrap:wrap; } .amm-layout { grid-template-columns:1fr; padding:12px; gap:12px; } #ammSvg { height:470px; } .amm-card { width:100%; } }
 </style>
 </head>
 <body>
@@ -1407,6 +1427,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   <button class="tab-btn active" data-tab="watch">&#x23F1; &#x79D2;&#x8868;&#x7EC3;&#x4E60;</button>
   <button class="tab-btn" data-tab="ruler">&#x1F4CF; &#x523B;&#x5EA6;&#x5C3A;&#x7EC3;&#x4E60;</button>
   <button class="tab-btn" data-tab="thermo">&#x1F321;&#xFE0F; &#x6E29;&#x5EA6;&#x8BA1;&#x7EC3;&#x4E60;</button>
+  <button class="tab-btn" data-tab="ammeter">Ⓐ 电流表练习</button>
 </div>
 
 <div class="tab-panel" id="tab-watch">
@@ -1936,6 +1957,80 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
     <div id="modalContent"></div>
   </div>
 </div>
+
+
+<section class="tab-panel" id="tab-ammeter" aria-label="电流表练习">
+  <div class="amm-layout">
+    <div class="amm-stage"><svg id="ammSvg" viewBox="0 0 700 720" role="img" aria-label="双量程电流表，请观察接线柱与指针读数"></svg></div>
+    <div class="amm-card">
+      <div><h2>电流表读数</h2><p class="amm-muted">先看接线柱，再选刻度读数。</p></div>
+      <label>出题量程<select id="ammMode"><option value="mixed">随机量程</option><option value="0.6">0～0.6 A</option><option value="3">0～3 A</option></select></label>
+      <form id="ammForm"><label for="ammInput">我的读数</label><div class="amm-entry"><input id="ammInput" type="number" step="any" min="0" max="3" inputmode="decimal" autocomplete="off" placeholder="输入读数"><b>A</b></div>
+      <div class="row" style="margin-top:14px"><button class="btn primary" type="submit">✓ 检查</button><button class="btn" id="ammReveal" type="button">查看答案</button></div></form>
+      <div id="ammFeedback" role="status" aria-live="polite">请读出电流表的示数。</div>
+      <button class="btn primary" id="ammNext" type="button">🎲 换一题</button>
+      <div class="amm-stats"><span>答对 <b id="ammOk">0</b></span><span>答错 <b id="ammErr">0</b></span><button id="ammClear" type="button">清空统计</button></div>
+      <p class="amm-muted">指针落在刻度线上。每题仅首次检查计入统计；先看答案的题目不计分。</p>
+    </div>
+  </div>
+</section>
+<script>
+(function () {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  let range = 0.6, tick = 0, counted = false, revealed = false, ok = 0, err = 0;
+  const point = (r, n) => { const a = (-140 + n * 100 / 30) * Math.PI / 180; return [350 + r * Math.cos(a), 330 + r * Math.sin(a)]; };
+  const line = (a,b,w=2) => `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#282522" stroke-width="${w}"/>`;
+  function draw() {
+    let svg = `<defs><linearGradient id="ammMetal"><stop stop-color="#777"/><stop offset=".4" stop-color="#eee"/><stop offset=".65" stop-color="#aaa"/><stop offset="1" stop-color="#666"/></linearGradient><linearGradient id="ammRed"><stop stop-color="#a81716"/><stop offset=".4" stop-color="#ff7751"/><stop offset=".65" stop-color="#d3211c"/><stop offset="1" stop-color="#981414"/></linearGradient><pattern id="ammTexture" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 8L4 0L8 8" fill="#ddd" stroke="#bbb" stroke-width=".5"/></pattern></defs>
+      <path d="M110 425H590L616 655V684H542Q539 662 520 662H180Q161 662 158 684H84V655Z" fill="#cbdbe6" stroke="#302d2b" stroke-width="3"/>
+      <path d="M106 439H594L596 464H103Z M87 635H613V651H87Z" fill="#96a5bb"/>
+      <rect x="91" y="28" width="518" height="413" rx="14" fill="#ddd" stroke="#302d2b" stroke-width="3"/>
+      <rect x="102" y="42" width="496" height="393" rx="9" fill="#fff"/>
+      <path d="M128 532H572L586 620H114Z" fill="#54b786" stroke="white" stroke-width="9"/>`;
+    for (let i=0;i<=30;i++) svg += line(point(237,i),point(i%10===0?266:i%5===0?258:250,i),i%10===0?3:2);
+    for (let i=0;i<=3;i++) {
+      for (const [radius,label,size] of [[285,String(i),31],[207,i===0?'0':(i*.2).toFixed(1),29]]) {
+        const [x,y]=point(radius,i*10), angle=-50+i*100/3;
+        svg+=`<text x="${x}" y="${y}" transform="rotate(${angle} ${x} ${y})" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-size="${size}" fill="#282522">${label}</text>`;
+      }
+    }
+    svg+=`<text x="350" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="54" fill="#282522">A</text><path d="M335 257H365" stroke="#282522" stroke-width="3"/>
+      <path d="M248 312H452L470 433H230Z" fill="url(#ammTexture)" stroke="#444"/>
+      <path d="M312 330Q350 291 388 330Z" fill="#282522"/>
+      <circle cx="350" cy="402" r="18" fill="#999" stroke="#333" stroke-width="2"/><path d="M339 390L362 414" stroke="#333" stroke-width="3"/>`;
+    svg+=line([350,330],point(272,tick),1.8);
+    for(const x of [144,556]) svg+=`<circle cx="${x}" cy="350" r="17" fill="#ddd" stroke="#555"/><circle cx="${x}" cy="350" r="10" fill="#bbb" stroke="#555"/>`;
+    [195,350,505].forEach((x,i)=>{
+      svg+=`<ellipse cx="${x}" cy="578" rx="25" ry="9" fill="#555"/><rect x="${x-17}" y="529" width="34" height="47" fill="url(#${i?'ammRed':'ammMetal'})" stroke="#444"/><rect x="${x-21}" y="508" width="42" height="43" rx="4" fill="url(#${i?'ammRed':'ammMetal'})" stroke="#444"/><ellipse cx="${x}" cy="508" rx="20" ry="6" fill="${i?'#bb1919':'#333'}" stroke="#777"/><text x="${x}" y="608" text-anchor="middle" font-size="28" font-family="Arial" font-weight="bold" fill="white">${['−','0.6','3'][i]}</text>`;
+    });
+    const wireX=range===0.6?350:505;
+    const wires=`M195 576C180 642 100 680 24 674 M${wireX} 576C${wireX-5} 637 565 691 670 700`;
+    svg+=`<path d="${wires}" fill="none" stroke="#a66b00" stroke-width="8"/><path d="${wires}" fill="none" stroke="#ffcb23" stroke-width="5"/><path d="${wires}" fill="none" stroke="#fff29a" stroke-width="1.3"/>`;
+    $('ammSvg').innerHTML=svg;
+  }
+  function feedback(text,cls='') { $('ammFeedback').textContent=text; $('ammFeedback').className=cls; }
+  function next() {
+    const mode=$('ammMode').value, prev=range+':'+tick;
+    do { range=mode==='mixed'?(Math.random()<.5?.6:3):Number(mode); tick=Math.floor(Math.random()*31); } while(range+':'+tick===prev);
+    counted=false; revealed=false; $('ammInput').value=''; feedback('请读出电流表的示数。'); draw();
+  }
+  function answer() { return (tick*range/30).toFixed(range===.6?2:1); }
+  function stats() { $('ammOk').textContent=ok; $('ammErr').textContent=err; }
+  $('ammForm').addEventListener('submit', e=>{
+    e.preventDefault(); const raw=$('ammInput').value.trim(), value=Number(raw);
+    if(raw==='' || !Number.isFinite(value) || value<0 || value>3) { feedback('请输入 0～3 之间的电流读数。','hint'); return; }
+    const correct=Math.abs(value-Number(answer()))<1e-8;
+    if(!counted&&!revealed) { if(correct) ok++; else err++; counted=true; stats(); }
+    feedback((correct?'✓ 读数正确！':'读数不对，再看看接线柱和刻度。')+(revealed?'（已看答案，本题不计分）':''),correct?'good':'bad');
+  });
+  $('ammReveal').addEventListener('click',()=>{ revealed=true; feedback(`示数 ${answer()} A。接入“−”和“${range}”接线柱，量程为 0～${range} A，每小格 ${range===.6?'0.02':'0.1'} A；指针在第 ${tick} 格。`,'hint'); });
+  $('ammNext').addEventListener('click',next);
+  $('ammMode').addEventListener('change',next);
+  $('ammClear').addEventListener('click',()=>{ok=0;err=0;stats();});
+  next();
+})();
+</script>
 
 <script>
 (function () {
@@ -3039,6 +3134,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   var currentTab = "watch";
   function switchTab(tab) {
     currentTab = tab;
+    document.getElementById("tab-ammeter").classList.toggle("active", tab === "ammeter");
     document.querySelectorAll(".tab-btn").forEach(function (b) {
       b.classList.toggle("active", b.getAttribute("data-tab") === tab);
     });
