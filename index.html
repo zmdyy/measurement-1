@@ -1418,6 +1418,25 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   .amm-fault-choices { display:grid; gap:8px; }
   .amm-fault-choices .btn { text-align:left; line-height:1.5; }
   .amm-card { gap:10px; }
+
+  /* 托盘天平：主图和读数图共享同一题目、砝码外形和游码位置。 */
+  #tab-balance { overflow:hidden; padding:12px 20px; gap:12px; }
+  .balance-toolbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; flex:none; }
+  .balance-toolbar h2 { font-size:20px; margin-right:auto; }
+  .balance-toolbar select { font:inherit; border:1px solid #cbd5e1; border-radius:7px; padding:7px; background:white; }
+  .balance-scenes { display:grid; grid-template-columns:1.12fr 1fr; gap:14px; flex:1; min-height:0; }
+  .balance-scene { display:flex; flex-direction:column; min-width:0; min-height:0; background:white; border-radius:14px; padding:12px; }
+  .balance-caption { font-size:16px; font-weight:700; color:#475569; flex:none; padding:2px 6px; }
+  .balance-scene svg { width:100%; height:100%; min-height:0; flex:1; }
+  .balance-console { flex:none; background:white; padding:12px 16px; border-radius:12px; }
+  .balance-answer-row { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
+  #balanceInput { width:115px; padding:7px; border:2px solid #cbd5e1; border-radius:8px; font:inherit; font-weight:700; font-size:22px; }
+  .balance-answer-row .btn.primary { flex:0 0 auto; }
+  .balance-stats { margin-left:auto; display:flex; gap:14px; align-items:center; font-size:14px; }
+  .balance-stats button { background:none; border:0; color:#64748b; padding:8px; }
+  #balanceFeedback { min-height:28px; margin-top:8px; font-size:15px; line-height:1.5; color:#475569; }
+  #balanceFeedback.good { color:#15803d; } #balanceFeedback.bad { color:#b91c1c; }
+  @media(max-width:800px) { #tab-balance { overflow:auto; padding:10px; } .balance-scenes { flex:none; grid-template-columns:1fr; } .balance-scene svg { height:300px; flex:none; } .balance-stats { margin-left:0; } }
 </style>
 </head>
 <body>
@@ -1432,6 +1451,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   <button class="tab-btn" data-tab="thermo">&#x1F321;&#xFE0F; &#x6E29;&#x5EA6;&#x8BA1;&#x7EC3;&#x4E60;</button>
   <button class="tab-btn" data-tab="ammeter">Ⓐ 电流表练习</button>
   <button class="tab-btn" data-tab="voltmeter">Ⓥ 电压表练习</button>
+  <button class="tab-btn" data-tab="balance">⚖ 托盘天平练习</button>
 </div>
 
 <div class="tab-panel" id="tab-watch">
@@ -1962,6 +1982,87 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   </div>
 </div>
 
+
+
+<section class="tab-panel" id="tab-balance" aria-label="托盘天平读数练习">
+  <div class="balance-toolbar"><h2>托盘天平读数</h2><label>物体 <select id="balanceObject"><option value="random">随机物体</option><option value="clip">一枚回形针</option><option value="smallEraser">一小块橡皮</option><option value="eraser">一块普通橡皮</option><option value="egg">一枚鸡蛋</option><option value="notebook">一本薄练习本</option><option value="book">一本小开本薄书</option></select></label><label>游码 <select id="balancePosition"><option value="mixed">随机位置</option><option value="line">正对刻度</option><option value="between">两刻度之间</option></select></label></div>
+  <div class="balance-scenes">
+    <div class="balance-scene"><div class="balance-caption" id="balanceObjectName"></div><svg id="balanceMain" viewBox="0 0 900 560" role="img" aria-label="已平衡的托盘天平，左盘物体，右盘砝码"></svg></div>
+    <div class="balance-scene"><div class="balance-caption">砝码与游码读数图</div><svg id="balanceDetail" viewBox="0 0 700 510" role="img" aria-label="本题全部砝码与完整游码标尺"></svg></div>
+  </div>
+  <div class="balance-console"><form id="balanceForm" class="balance-answer-row"><label for="balanceInput">我的读数</label><input id="balanceInput" type="number" min="0" step="any" inputmode="decimal" autocomplete="off"><b>g</b><button class="btn primary" type="submit">✓ 检查</button><button class="btn" id="balanceReveal" type="button">查看答案</button><button class="btn" id="balanceNext" type="button">🎲 换一题</button><div class="balance-stats"><span>答对 <b id="balanceOk">0</b></span><span>答错 <b id="balanceErr">0</b></span><button type="button" id="balanceClear">清空统计</button></div></form><div id="balanceFeedback" role="status" aria-live="polite">天平已平衡，请读出左盘物体的质量。</div></div>
+</section>
+<script>
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const objects=[{id:'clip',name:'一枚回形针',min:.4,max:1},{id:'smallEraser',name:'一小块橡皮',min:2,max:4},{id:'eraser',name:'一块普通橡皮',min:8,max:20},{id:'egg',name:'一枚鸡蛋',min:45,max:65},{id:'notebook',name:'一本薄练习本',min:20,max:50},{id:'book',name:'一本小开本薄书',min:80,max:150}];
+  const stock=[100,50,20,20,10,5];
+  let question,ok=0,err=0,counted=false,revealed=false;
+  const text=(x,y,value,size=24,fill='#292524')=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" fill="${fill}" font-family="Arial,Microsoft YaHei,sans-serif">${value}</text>`;
+  function defs(id){return `<defs><linearGradient id="${id}Metal"><stop stop-color="#888"/><stop offset=".32" stop-color="#f8f8f8"/><stop offset=".58" stop-color="#bdbdbd"/><stop offset="1" stop-color="#777"/></linearGradient></defs>`;}
+  // Both views reuse this shape; all dimensions scale with the cube root of mass.
+  function weight(id,mass,x,y,scale){
+    const k=Math.cbrt(mass/5),w=32*k,h=36*k;
+    return `<g data-weight="${mass}" transform="translate(${x} ${y}) scale(${scale})"><ellipse cx="3" cy="2" rx="${w*.62}" ry="5" fill="#000" opacity=".13"/><path d="M${-w/2} ${-h}Q0 ${-h-9} ${w/2} ${-h}V-3Q0 5 ${-w/2} -3Z" fill="url(#${id}Metal)" stroke="#444" stroke-width="1.3"/><rect x="${-w*.1}" y="${-h-12}" width="${w*.2}" height="12" fill="url(#${id}Metal)" stroke="#444"/><ellipse cx="0" cy="${-h-13}" rx="${w*.16}" ry="${w*.12}" fill="url(#${id}Metal)" stroke="#444"/></g>`;
+  }
+  function scale(id,x,y,width){
+    const step=width/25,slider=x+question.slider/5*width;
+    let out=`<g data-ruler="${id}"><rect x="${x-30}" y="${y}" width="${width+65}" height="88" fill="#f8e6c7" stroke="#352b24" stroke-width="3"/>`;
+    for(let i=0;i<=25;i++){
+      const tx=x+i*step;out+=`<path d="M${tx} ${y}v${i%5===0?34:19}" stroke="#352b24" stroke-width="2"/>`;
+      if(i%5===0)out+=text(tx,y+61,i===25?'5 g':String(i/5),23);
+    }
+    // Left edge is the reading edge, exactly shared by the two views.
+    out+=`<g data-slider="${question.slider}" transform="translate(${slider} 0)"><rect x="0" y="${y-7}" width="29" height="25" fill="#747474"/><rect x="22" y="${y+15}" width="7" height="61" fill="#747474"/><rect x="0" y="${y+72}" width="29" height="24" fill="#747474"/></g></g>`;
+    return out;
+  }
+  function objectDrawing(){
+    switch(question.object.id){
+      case 'clip':return '<g transform="translate(180 207) rotate(-18)"><path d="M-26 10H25C46 10 46-14 25-14H-22C-39-14-39 5-22 5H23C31 5 31-5 23-5H-18" fill="none" stroke="#555" stroke-width="5"/><path d="M-26 9H25C43 9 43-12 25-12H-22" fill="none" stroke="#ddd" stroke-width="2"/></g>';
+      case 'egg':return '<path d="M180 121C156 122 142 163 145 189C148 222 211 222 216 190C220 164 201 123 180 121Z" fill="#eedac0" stroke="#aa9176" stroke-width="2"/><ellipse cx="166" cy="153" rx="10" ry="17" fill="#fff" opacity=".4"/>';
+      case 'book':case 'notebook':{const thick=question.object.id==='book'?26:10;return `<path d="M112 179L244 166L265 ${189+thick}L129 ${205+thick}Z" fill="#f8f3df" stroke="#6b7280"/><path d="M112 179L244 166L265 189L129 205Z" fill="${thick===26?'#7194b4':'#9bb8a6'}" stroke="#536b7a"/><path d="M129 205V${205+thick}M138 ${209+thick/2}L258 ${193+thick/2}" stroke="#aaa"/>`;}
+      default:{const small=question.object.id==='smallEraser',w=small?64:108;return `<g transform="translate(${180-w/2} 176)"><path d="M0 7L${w-12} 0L${w} 19L13 27Z" fill="#f1eacb" stroke="#9c9986"/><path d="M13 27L${w} 19V40L13 48Z" fill="#cec9ac"/><path d="M0 7L13 27V48L0 28Z" fill="#b7b49e"/></g>`;}
+    }
+  }
+  function draw(){
+    const id='balanceMain';let main=defs(id);
+    main+=`<path d="M155 456L710 442L795 509L756 545H117L90 509Z" fill="#cad6cd" stroke="#a0ada6" stroke-width="3"/><path d="M90 509H795L779 546H108Z" fill="#b3c1b8"/><path d="M423 468V184L452 123L482 185V468Z" fill="#91a1b0" stroke="#73828e" stroke-width="3"/><path d="M434 452V181L452 150V454" fill="#c8d2dc"/>
+      <path d="M170 262V437M718 246V431" stroke="#a3b1bc" stroke-width="20"/><path d="M168 312H722L743 338H150Z" fill="#a5b9ca" stroke="#73828e" stroke-width="3"/>
+      <path d="M174 300L440 335L458 302L478 332L719 284" fill="none" stroke="#8294a2" stroke-width="22"/><path d="M147 315H106M742 298H785" stroke="#9aa4aa" stroke-width="6"/><ellipse cx="111" cy="315" rx="6" ry="15" fill="#bac8d1"/><ellipse cx="781" cy="298" rx="6" ry="15" fill="#bac8d1"/>
+      <path d="M400 76Q450 49 500 76L490 125H412Z" fill="#f0d18f" stroke="#b5a580" stroke-width="3"/>`;
+    for(let i=-5;i<=5;i++)main+=`<path d="M${450+i*7} 80L${450+i*6} 105" stroke="#51483a" stroke-width="${i===0?2:1}"/>`;
+    main+='<path d="M451 315L450 77" stroke="#62656d" stroke-width="3"/>';
+    for(const [cx,cy] of [[182,238],[716,221]])main+=`<path d="M${cx-144} ${cy}V${cy+18}Q${cx} ${cy+92} ${cx+144} ${cy+18}V${cy}Z" fill="#565656"/><ellipse cx="${cx}" cy="${cy}" rx="144" ry="49" fill="#737373" stroke="#b7b7b7" stroke-width="5"/>`;
+    main+=objectDrawing();
+    const sizes=question.weights.map(m=>32*Math.cbrt(m/5)*.68),total=sizes.reduce((a,b)=>a+b,0)+Math.max(0,sizes.length-1)*10;let cursor=716-total/2;
+    question.weights.forEach((m,i)=>{main+=weight(id,m,cursor+sizes[i]/2,225,.68);cursor+=sizes[i]+10;});
+    main+=scale(id,260,345,355);$('balanceMain').innerHTML=main;
+    let detail=defs('balanceDetail');const widths=question.weights.map(m=>32*Math.cbrt(m/5)*1.15),span=widths.reduce((a,b)=>a+b,0)+Math.max(0,widths.length-1)*36;cursor=350-span/2;
+    question.weights.forEach((m,i)=>{const x=cursor+widths[i]/2;detail+=weight('balanceDetail',m,x,204,1.15)+text(x,247,m+' g',29);cursor+=widths[i]+36;});
+    if(!question.weights.length)detail+=text(350,185,'右盘无砝码',27,'#64748b');
+    detail+=scale('balanceDetail',65,332,555);$('balanceDetail').innerHTML=detail;
+    $('balanceObjectName').textContent=question.object.name+' · 天平已平衡';
+  }
+  function next(){
+    const selected=$('balanceObject').value,object=selected==='random'?objects[Math.floor(Math.random()*objects.length)]:objects.find(o=>o.id===selected);
+    const mode=$('balancePosition').value,between=mode==='between'||(mode==='mixed'&&Math.random()<.5);
+    // Work in fifth-gram units. Quarter/three-quarter offsets avoid midpoint cases.
+    let massUnits,raw;
+    do{massUnits=Math.floor(object.min*5)+Math.floor(Math.random()*(Math.floor(object.max*5)-Math.floor(object.min*5)+1));raw=massUnits+(between?(Math.random()<.5?-.25:.25):0);}while(raw/5<object.min||raw/5>object.max);
+    let remainder=raw/5;const weights=[];
+    stock.forEach(m=>{if(remainder>=m-1e-9){weights.push(m);remainder-=m;}});
+    const slider=Math.round(remainder*100)/100,reading=Math.round(slider*5)/5;
+    question={object,weights,slider,reading,answer:Math.round((weights.reduce((a,b)=>a+b,0)+reading)*10)/10};
+    counted=false;revealed=false;$('balanceInput').value='';feedback('天平已平衡，请读出左盘物体的质量。');draw();
+  }
+  function feedback(msg,cls=''){$('balanceFeedback').textContent=msg;$('balanceFeedback').className=cls;}
+  function stats(){$('balanceOk').textContent=ok;$('balanceErr').textContent=err;}
+  $('balanceForm').addEventListener('submit',e=>{e.preventDefault();const raw=$('balanceInput').value.trim(),value=Number(raw);if(!raw||!Number.isFinite(value)||value<0){feedback('请先输入有效的质量读数。');return;}const correct=Math.abs(value-question.answer)<1e-8;if(!counted&&!revealed){if(correct)ok++;else err++;counted=true;stats();}feedback((correct?'✓ 读数正确！':'读数有误，请核对全部砝码与游码左边缘。')+(revealed?'（本题已看答案，不计分）':''),correct?'good':'bad');});
+  $('balanceReveal').addEventListener('click',()=>{revealed=true;const q=question,sum=q.weights.reduce((a,b)=>a+b,0),between=Math.abs(q.slider-q.reading)>1e-8;document.getElementById('modalContent').innerHTML=`<div class="big" style="white-space:normal">标准读数：${q.answer.toFixed(1)} g</div><div class="detail">${q.weights.length?'砝码：'+q.weights.join(' g ＋ ')+' g，共 '+sum+' g。':'右盘无砝码，砝码总质量为 0 g。'}<br>游码读左边缘，分度值为 0.2 g，${between?'左边缘位于两刻度之间，本练习按最近的刻度取值，读作':'示数为'} ${q.reading.toFixed(1)} g。<br>物体质量＝砝码总质量＋游码示数＝${sum} g ＋ ${q.reading.toFixed(1)} g＝<b>${q.answer.toFixed(1)} g</b>。</div>`;document.getElementById('answerOverlay').classList.add('show');});
+  $('balanceNext').addEventListener('click',next);$('balanceObject').addEventListener('change',next);$('balancePosition').addEventListener('change',next);$('balanceClear').addEventListener('click',()=>{ok=0;err=0;stats();});next();
+})();
+</script>
 
 <section class="tab-panel" id="tab-ammeter" aria-label="电流表练习">
   <div class="amm-layout">
@@ -3223,6 +3324,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   var currentTab = "watch";
   function switchTab(tab) {
     currentTab = tab;
+    document.getElementById("tab-balance").classList.toggle("active", tab === "balance");
     document.getElementById("tab-ammeter").classList.toggle("active", tab === "ammeter");
     document.getElementById("tab-voltmeter").classList.toggle("active", tab === "voltmeter");
     document.querySelectorAll(".tab-btn").forEach(function (b) {
