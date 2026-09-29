@@ -1486,6 +1486,56 @@ body[data-thermo-journey="4"] #tab-thermo .ruler-method-v3 { display:none; }
 .btn.next-question { background:#fff7ed!important;border:1px solid #f59e0b!important;color:#b45309!important;border-radius:10px!important;min-height:42px;padding:8px 14px!important;font-size:14px!important;font-weight:700;white-space:nowrap; }
 .btn.next-question:hover { background:#ffedd5!important; }
 
+
+/* Classroom activity pages: readable from the back of the room. */
+body[data-journey="4"] #tab-watch .stage-col,
+body[data-journey="4"] #tab-watch .quest-foot { display:none!important; }
+body[data-journey="4"] #tab-watch .workspace { grid-template-columns:minmax(0,1fr)!important; }
+body[data-journey="4"] #tab-watch .quest-col,
+body[data-thermo-journey="4"] #tab-thermo .ruler-quest-v3 { width:100%;max-width:1120px;margin:0 auto; }
+body[data-journey="4"] #tab-watch .quest-card,
+body[data-thermo-journey="4"] #tab-thermo .ruler-q-card-v3 { padding:clamp(16px,2vw,32px); }
+#qPanel4,#tqPanel4 { gap:16px; }
+#qPanel4 .q-title,#tqPanel4 .rq-title { font-size:clamp(28px,2.5vw,38px);line-height:1.3; }
+#qPanel4 .q-desc,#tqPanel4 .rq-desc { font-size:clamp(20px,1.7vw,26px);line-height:1.65; }
+#qPanel4 .est-card,#tqPanel4 .rq-est-card { padding:20px 24px;border-radius:12px; }
+#qPanel4 .est-head,#estTaskName,#tqPanel4 .rq-est-task { font-size:clamp(24px,2.2vw,34px);line-height:1.5; }
+#qPanel4 .est-small,#qPanel4 .est-task,#tqPanel4 .rq-est-hint { font-size:20px;line-height:1.6; }
+#qPanel4 .btn,#tqPanel4 .btn,#qPanel4 .btn.next-question,#tqPanel4 .btn.next-question { font-size:20px!important;min-height:50px;padding:10px 20px!important;flex:0 0 auto; }
+#qPanel4 .row,#tqPanel4 .rq-est-row { flex-wrap:wrap;gap:12px;align-items:center; }
+#qPanel4 label,#qPanel4 .estimate-row span,#tqPanel4 .rq-est-row label,#tqPanel4 .rq-est-row span { font-size:22px; }
+#qPanel4 input,#tqPanel4 input { width:150px;height:52px;font-size:26px;padding:6px 10px; }
+#qPanel4 .feedback,#tqPanel4 .feedback { font-size:22px;line-height:1.6;padding:14px; }
+#estReadout,#tqPanel4 .rq-est-big { font-size:clamp(30px,3vw,46px);padding:20px 0;white-space:normal; }
+.time-choices { display:flex;gap:12px;flex-wrap:wrap; }
+.time-choices .active { background:#1769d1;color:white;border-color:#1769d1; }
+.time-action { margin:14px 0;text-align:center; }
+#qPanel4 .time-action .btn { width:220px;min-height:62px;font-size:26px!important; }
+#oneSecondResult { font-size:clamp(28px,2.8vw,40px);font-weight:800;text-align:center;color:#0f172a;line-height:1.4;margin:12px 0; }
+#oneSecondCompare { max-width:800px;margin:16px auto; }
+.time-bar-label { font-size:22px;margin:10px 0 6px; }
+.time-track { position:relative;height:26px;background:#e8edf4;border-radius:6px; }
+.time-bar { height:100%;border-radius:6px; }
+.time-bar.target { background:#1769d1; }.time-bar.actual { background:#f59e0b; }
+.time-mark { position:absolute;top:-6px;bottom:-6px;border-left:3px dashed #1769d1; }
+#oneSecondHistory { font-size:20px;color:#475569;text-align:center;margin:14px 0; }
+#qPanel4 [hidden] { display:none!important; }
+@media(max-width:600px){#qPanel4 .est-card,#tqPanel4 .rq-est-card{padding:14px;}#oneSecondHistory{font-size:17px;}}
+
+
+/* Keep the result and three-attempt history together on classroom laptops. */
+body[data-journey="4"] #tab-watch .quest-card { padding:16px 24px; }
+#qPanel4 { gap:9px; }
+#qPanel4 .est-card { padding:14px 20px; }
+#qPanel4 .time-action { margin:8px 0; }
+#oneSecondResult { margin:8px 0; }
+#oneSecondCompare { margin:8px auto; }
+.time-bar-label { margin:6px 0 4px; }
+.time-track { height:22px; }
+#oneSecondHistory { margin:8px 0; }
+#qPanel4 .est-small { margin:4px 0; }
+#qPanel4 .time-choices .btn.active { background:#1769d1!important;color:#fff!important; }
+
 </style>
 </head>
 <body>
@@ -1669,29 +1719,33 @@ body[data-thermo-journey="4"] #tab-thermo .ruler-method-v3 { display:none; }
       <div class="q-panel" id="qPanel4">
         <div class="q-no">&#x7B2C;4&#x7AD9; &#xB7; &#x91CF;&#x611F;</div>
         <div class="q-title">感受时间 ⏱️</div>
-        <div class="est-card">
-          <div class="est-head">活动一 · 1 秒到底有多长？</div>
-          <p class="q-desc">自己点击开始，心里感觉过了 1 秒就点击暂停。计时过程中不显示数字。</p>
-          <div class="row"><button id="oneSecondStart" class="btn start">▶ 开始</button><button id="oneSecondStop" class="btn stop" disabled>⏸ 暂停</button></div>
-          <div id="oneSecondResult" class="est-readout" aria-live="polite">准备挑战 1 s</div>
-          <p class="est-small">多试几次：每次都一样吗？结果既与时间感觉有关，也会受到按键反应和操作的影响。</p>
+        <div class="time-choices" role="group" aria-label="时间感活动">
+          <button class="btn active" data-time-activity="challenge" aria-pressed="true">挑战1秒</button>
+          <button class="btn" data-time-activity="life" aria-pressed="false">生活任务实测</button>
         </div>
-        <div class="q-desc"><b>活动二 · 生活任务实测</b><br>先估计需要多少秒；一名同学实际完成任务，另一名同学在动作开始时点击开始、完成时点击暂停，再比较估计与实测。</div>
-        <div class="est-card" id="estCard">
-          <div class="est-task">&#x4EFB;&#x52A1;&#xFF1A;<b id="estTaskName">&#x6DF1;&#x547C;&#x5438; 1 &#x6B21;</b>
-            <span class="est-small">&#x5148;&#x8BA9;&#x5168;&#x73ED;&#x53E3;&#x5934;&#x731C;&#x4E00;&#x731C;&#xFF0C;&#x518D;&#x70B9;&#x5F00;&#x59CB;&#xFF0C;&#x88AB;&#x6D4B;&#x8005;&#x5B8C;&#x6210;&#x52A8;&#x4F5C;&#x540E;&#x505C;&#x6B62;</span></div>
-          <div class="row">
-            <button id="estStartBtn" class="btn start grow1">&#x25B6; &#x5F00;&#x59CB;</button>
-            <button id="estStopBtn" class="btn stop grow1" disabled>⏸ 暂停</button>
-            <button id="estNextBtn" class="btn grow0" title="换一个任务">🎲 换一题</button>
+        <div id="timeChallenge" class="est-card">
+          <div class="est-head">你能按出1秒吗？</div>
+          <p class="q-desc">点击开始，感觉过了1秒就点击暂停。</p>
+          <div class="time-action"><button id="oneSecondStart" class="btn start">▶ 开始挑战</button><button id="oneSecondStop" class="btn stop" hidden disabled>⏸ 暂停</button></div>
+          <div id="oneSecondResult" aria-live="polite">准备挑战 1 s</div>
+          <div id="oneSecondCompare" hidden>
+            <div class="time-bar-label">目标：1.00 s</div>
+            <div class="time-track"><div id="targetTimeBar" class="time-bar target"></div></div>
+            <div class="time-bar-label">你的时间：<b id="actualTimeLabel"></b></div>
+            <div class="time-track"><div id="actualTimeBar" class="time-bar actual"></div><div id="targetTimeMark" class="time-mark"></div></div>
           </div>
-          <div class="est-readout" id="estReadout">&mdash;</div>
-          <div class="row" style="align-items:center; gap:6px">
-            <label class="est-small" for="estGuessInput" style="font-weight:bold">&#x4F60;&#x731C;&#x591A;&#x5C11;&#x79D2;&#xFF1F;</label>
-            <input id="estGuessInput" type="number" min="0" max="1800" step="0.1" placeholder="?">
-            <button id="estCheckBtn" class="btn grow0">&#x731C;&#x5F97;&#x51C6;&#x5417;</button>
+          <div id="oneSecondHistory" aria-label="最近三次挑战"></div>
+          <p class="est-small">多试几次：时间感觉和按键操作，都会影响结果。</p>
+        </div>
+        <div id="timeLife" hidden>
+          <div class="q-desc">先估计用时，再由同学实际完成任务。动作开始时计时，完成时暂停。</div>
+          <div class="est-card" id="estCard">
+            <div class="est-task">本次任务<b id="estTaskName"></b></div>
+            <div class="row estimate-row"><label for="estGuessInput">我的估计</label><input id="estGuessInput" type="number" min="0" max="1800" step="0.1" placeholder="秒数"><span>s</span><button id="estNextBtn" class="btn next-question">🎲 换一题</button></div>
+            <div class="est-readout" id="estReadout">—</div>
+            <div class="row"><button id="estStartBtn" class="btn start">▶ 开始</button><button id="estStopBtn" class="btn stop" disabled>⏸ 暂停</button><button id="estCheckBtn" class="btn">比较估计与实测</button></div>
+            <div class="feedback" id="estFeedback" aria-live="polite"></div>
           </div>
-          <div class="feedback" id="estFeedback"></div>
         </div>
         <div class="q-cta hidden" id="q4Cta">
           <button class="btn primary q-go" id="go5Btn">&#x611F;&#x89C9;&#x4E0D;&#x9519;&#xFF0C;&#x53BB;&#x6700;&#x540E;&#x4E00;&#x7AD9; &#x203A;</button>
@@ -4070,7 +4124,8 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     ["课间去洗手间再回来", "猜：课间 10 分钟够不够走一趟再回来", 180, 480],
     ["方便面从倒开水到能吃", "从倒开水到能吃，大概要等多久", 180, 360],
     ["均匀呼吸 10 次", "吸气→呼气，数满 10 次", 0, 0],
-    ["一首流行歌到副歌", "从开头到副歌，大概多长时间", 35, 80],
+    ["跑100米", "一名同学实际跑完100米，记录用时", 0, 0],
+    ["跑1000米", "一名同学实际跑完1000米，记录用时", 0, 0],
     ["从起床到出门上学", "自己通常要花多久", 480, 1800]
   ];
   var estIdx = -1;
@@ -4123,17 +4178,45 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     if (lo >= 60 && hi >= 60) return (lo / 60).toFixed(0) + "\uff5e" + (hi / 60).toFixed(0) + " \u5206\u949f";
     return lo + "\uff5e" + hi + " s";
   }
-  var oneSecondStarted = null;
+  var oneSecondStarted = null, oneSecondHistory = [];
+  function resetChallengeControls(){
+    oneSecondStarted = null;
+    document.getElementById('oneSecondStart').hidden=false;
+    document.getElementById('oneSecondStart').disabled=false;
+    document.getElementById('oneSecondStop').hidden=true;
+    document.getElementById('oneSecondStop').disabled=true;
+  }
+  document.querySelectorAll('[data-time-activity]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var challenge=this.dataset.timeActivity==='challenge';
+      if(oneSecondStarted!==null){resetChallengeControls();document.getElementById('oneSecondResult').textContent='准备挑战 1 s';}
+      if(estRunning) estStopTimer();
+      document.getElementById('timeChallenge').hidden=!challenge;
+      document.getElementById('timeLife').hidden=challenge;
+      document.querySelectorAll('[data-time-activity]').forEach(function(b){var on=b===btn;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+    });
+  });
   document.getElementById('oneSecondStart').addEventListener('click', function(){
-    oneSecondStarted = performance.now();
-    this.disabled = true; document.getElementById('oneSecondStop').disabled = false;
-    document.getElementById('oneSecondResult').textContent = '凭感觉，在 1 秒时暂停…';
+    oneSecondStarted=performance.now();this.hidden=true;this.disabled=true;
+    var stop=document.getElementById('oneSecondStop');stop.hidden=false;stop.disabled=false;stop.focus();
+    document.getElementById('oneSecondCompare').hidden=true;
+    document.getElementById('oneSecondResult').textContent='感觉到了1秒，就按暂停';
   });
   document.getElementById('oneSecondStop').addEventListener('click', function(){
-    if(oneSecondStarted === null) return;
-    var seconds = (performance.now()-oneSecondStarted)/1000;
-    oneSecondStarted = null; this.disabled = true; document.getElementById('oneSecondStart').disabled = false;
-    document.getElementById('oneSecondResult').textContent = seconds.toFixed(2)+' s（相差 '+Math.abs(seconds-1).toFixed(2)+' s）';
+    if(oneSecondStarted===null)return;
+    var seconds=(performance.now()-oneSecondStarted)/1000;
+    resetChallengeControls();document.getElementById('oneSecondStart').textContent='↻ 再试一次';
+    var delta=seconds-1;
+    document.getElementById('oneSecondResult').textContent=Math.abs(delta)<0.005?'正好1.00秒！':(delta>0?'按晚了':'按早了')+Math.abs(delta).toFixed(2)+'秒';
+    var max=Math.max(1,seconds)*1.12, target=100/max, actual=seconds*100/max;
+    document.getElementById('targetTimeBar').style.width=target+'%';
+    document.getElementById('actualTimeBar').style.width=actual+'%';
+    document.getElementById('targetTimeMark').style.left=target+'%';
+    document.getElementById('actualTimeLabel').textContent=seconds.toFixed(2)+' s';
+    document.getElementById('oneSecondCompare').hidden=false;
+    oneSecondHistory.push(seconds);oneSecondHistory=oneSecondHistory.slice(-3);
+    document.getElementById('oneSecondHistory').textContent='最近'+oneSecondHistory.length+'次：'+oneSecondHistory.map(function(t){return t.toFixed(2)+' s';}).join('　·　');
+    journeyEstDone();
   });
   function estCheck() {
     var gv = document.getElementById("estGuessInput").value.trim();
