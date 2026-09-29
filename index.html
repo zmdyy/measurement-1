@@ -1470,6 +1470,22 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   #cylinderFeedback { flex:1; min-height:26px; font-size:14px; line-height:1.5; color:#475569; }
   #cylinderFeedback.good { color:#15803d; } #cylinderFeedback.bad { color:#b91c1c; }
   @media(max-width:800px) { #tab-cylinder { overflow:auto; padding:10px; } .cyl-scenes { flex:none; grid-template-columns:1fr; } .cyl-scene svg { flex:none; height:470px; } }
+
+/* Living temperature scenarios are independent of the instrument diagram. */
+body[data-thermo-journey="4"] #tab-thermo .ruler-stage-v3 { display:none!important; }
+body[data-thermo-journey="4"] #tab-thermo .ruler-workspace-v3 { grid-template-columns:minmax(0,1fr)!important; }
+body[data-thermo-journey="4"] #tab-thermo .ruler-quest-v3 { width:100%;max-width:760px;margin:0 auto; }
+body[data-thermo-journey="4"] #tab-thermo .ruler-method-v3 { display:none; }
+#tqPanel4 .rq-est-row { flex-wrap:wrap;gap:10px; }
+#tqPanel4 .rq-est-row .btn { flex:0 0 auto;font-size:14px;padding:9px 14px; }
+#oneSecondResult { white-space:normal;font-size:18px;line-height:1.6; }
+#estTaskName { display:block;font-size:15px;margin:5px 0; }
+#tqPanel4 .rq-title { font-size:24px; }
+#tqPanel4 .rq-desc,#tqPanel4 .rq-est-task,#tqPanel4 .rq-est-hint { font-size:16px;line-height:1.7; }
+#qPanel4 .est-card { padding:12px; } #qPanel4 .est-head { font-size:16px; }
+.btn.next-question { background:#fff7ed!important;border:1px solid #f59e0b!important;color:#b45309!important;border-radius:10px!important;min-height:42px;padding:8px 14px!important;font-size:14px!important;font-weight:700;white-space:nowrap; }
+.btn.next-question:hover { background:#ffedd5!important; }
+
 </style>
 </head>
 <body>
@@ -1652,15 +1668,22 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
       <!-- 环节 4：时间感（量感训练） -->
       <div class="q-panel" id="qPanel4">
         <div class="q-no">&#x7B2C;4&#x7AD9; &#xB7; &#x91CF;&#x611F;</div>
-        <div class="q-title">1 &#x79D2;&#x5230;&#x5E95;&#x6709;&#x591A;&#x957F;&#xFF1F; &#x23F1;&#xFE0F;</div>
-        <div class="q-desc">&#x5149;&#x4F1A;&#x8BFB;&#x8868;&#x8FD8;&#x4E0D;&#x591F;&#xFF0C;&#x5FC3;&#x91CC;&#x8FD8;&#x5F97;&#x6709;&#x4E00;&#x79E4;&#x201C;&#x65F6;&#x95F4;&#x79E4;&#x201D;&#x3002;&#x9009;&#x4E00;&#x4E2A;&#x4EFB;&#x52A1;&#xFF0C;&#x5148;<b>&#x731C;</b>&#x5927;&#x6982;&#x51E0;&#x79D2;&#xFF0C;&#x518D;&#x8BA9;&#x540C;&#x5B66;&#x505A;&#x52A8;&#x4F5C;<b>&#x5B9E;&#x6D4B;</b>&#xFF0C;&#x6BD4;&#x4E00;&#x6BD4;&#x4F60;&#x7684;&#x611F;&#x89C9;&#x51C6;&#x4E0D;&#x51C6;&#xFF1A;</div>
+        <div class="q-title">感受时间 ⏱️</div>
+        <div class="est-card">
+          <div class="est-head">活动一 · 1 秒到底有多长？</div>
+          <p class="q-desc">自己点击开始，心里感觉过了 1 秒就点击暂停。计时过程中不显示数字。</p>
+          <div class="row"><button id="oneSecondStart" class="btn start">▶ 开始</button><button id="oneSecondStop" class="btn stop" disabled>⏸ 暂停</button></div>
+          <div id="oneSecondResult" class="est-readout" aria-live="polite">准备挑战 1 s</div>
+          <p class="est-small">多试几次：每次都一样吗？结果既与时间感觉有关，也会受到按键反应和操作的影响。</p>
+        </div>
+        <div class="q-desc"><b>活动二 · 生活任务实测</b><br>先估计需要多少秒；一名同学实际完成任务，另一名同学在动作开始时点击开始、完成时点击暂停，再比较估计与实测。</div>
         <div class="est-card" id="estCard">
           <div class="est-task">&#x4EFB;&#x52A1;&#xFF1A;<b id="estTaskName">&#x6DF1;&#x547C;&#x5438; 1 &#x6B21;</b>
             <span class="est-small">&#x5148;&#x8BA9;&#x5168;&#x73ED;&#x53E3;&#x5934;&#x731C;&#x4E00;&#x731C;&#xFF0C;&#x518D;&#x70B9;&#x5F00;&#x59CB;&#xFF0C;&#x88AB;&#x6D4B;&#x8005;&#x5B8C;&#x6210;&#x52A8;&#x4F5C;&#x540E;&#x505C;&#x6B62;</span></div>
           <div class="row">
             <button id="estStartBtn" class="btn start grow1">&#x25B6; &#x5F00;&#x59CB;</button>
-            <button id="estStopBtn" class="btn stop grow1" disabled>&#x25A0; &#x505C;&#x6B62;</button>
-            <button id="estNextBtn" class="btn grow0" title="换一个任务">&#x21BB;&#x6362;</button>
+            <button id="estStopBtn" class="btn stop grow1" disabled>⏸ 暂停</button>
+            <button id="estNextBtn" class="btn grow0" title="换一个任务">🎲 换一题</button>
           </div>
           <div class="est-readout" id="estReadout">&mdash;</div>
           <div class="row" style="align-items:center; gap:6px">
@@ -1944,8 +1967,8 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
         <div class="rq-panel" id="tqPanel2">
           <div class="rq-kicker">第 2 站 · 练习</div>
           <div class="rq-title">读出液柱对应的温度</div>
-          <div class="rq-desc">视线与液柱<b>上表面</b>相平，再按分度值读数。体温计读到 0.1 °C；实验室温度计要<b>估读</b>到 0.1 °C。</div>
-          <div class="rq-mini-rule">① 认准 0 刻度（正负）　② 看液柱上端　③ 读整格　④ 估读下一位　⑤ 写单位 °C</div>
+          <div class="rq-desc">视线与液柱<b>上表面</b>相平。靠近哪条刻度就读哪条，不估读：体温计读到 0.1 °C，实验室温度计读到 1 °C。</div>
+          <div class="rq-mini-rule">① 认准 0 刻度（正负）　② 看液柱上端　③ 找最近的刻度　④ 按分度值读数　⑤ 写单位 °C</div>
           <div class="rq-progress" id="thermoQ2Progress">连对 0 / 3 题</div>
           <button id="thermoGo3Btn" class="btn primary rq-next-btn hidden">✓ 连对 3 题，去火眼金睛 →</button>
           <button class="rq-link" id="thermoSkip2Btn">直接去下一站 →</button>
@@ -1969,16 +1992,16 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
         <div class="rq-panel" id="tqPanel4">
           <div class="rq-kicker">第 4 站 · 量感</div>
           <div class="rq-title">这个温度，大概是多少？</div>
-          <div class="rq-desc">先别急着数刻度。看液柱高低和生活场景，先估一个温度，再显示刻度核对。</div>
+          <div class="rq-desc">先别急着数刻度。联系自己的生活经验，估计下面情境的温度，再查看参考范围。</div>
           <div class="rq-est-card">
             <div class="rq-est-task">先估估：<b id="thermoEstName">—</b></div>
-            <div class="rq-est-hint" id="thermoEstHint">刻度先藏起来。凭生活经验估一个温度。</div>
-            <div class="rq-est-big" id="thermoEstReal">实测：先不看刻度</div>
+            <div class="rq-est-hint" id="thermoEstHint">凭生活经验估计，不需要对照温度计。</div>
+            <div class="rq-est-big" id="thermoEstReal">先估计，再看参考范围</div>
             <div class="rq-est-row">
               <label for="thermoGuessInput">我猜</label>
               <input id="thermoGuessInput" type="number" step="0.1" placeholder="几摄氏度？">
               <span>°C</span>
-              <button id="thermoShowScaleBtn" class="btn">显示刻度</button>
+              <button id="thermoShowScaleBtn" class="btn">查看参考</button><button id="thermoSceneNext" class="btn">🎲 换一题</button>
               <button id="thermoEstimateCheck" class="btn primary">核对</button>
             </div>
             <div id="thermoEstFeedback" class="feedback"></div>
@@ -1995,7 +2018,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
             <button data-tprec="lab">实验室温度计（1 °C）</button>
           </div>
           <div class="rq-compare-result" id="thermoCompareResult"></div>
-          <div class="rq-takeaway">带走一句话：<b>体温计量程窄、分度细；实验室温度计量程宽、分度粗，还要估读。</b></div>
+          <div class="rq-takeaway">带走一句话：<b>体温计量程窄、分度细；实验室温度计量程宽、分度粗，按最近刻度读数。</b></div>
           <button id="thermoDoneBtn" class="btn primary rq-next-btn hidden">🎉 完成温度计学习旅程</button>
         </div>
 
@@ -4074,7 +4097,9 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     document.getElementById("estReadout").textContent = fmtClock(estElapsed);
   }
   function estStartTimer() {
+    var guess = document.getElementById("estGuessInput").value;
     estResetUI();
+    document.getElementById("estGuessInput").value = guess;
     estRunning = true;
     estElapsed = 0;
     estLast = performance.now();
@@ -4083,6 +4108,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     estTimer = setInterval(estTick, 33);
   }
   function estStopTimer() {
+    if (estRunning) estTick();
     if (estTimer) clearInterval(estTimer);
     estTimer = null;
     estRunning = false;
@@ -4097,12 +4123,25 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     if (lo >= 60 && hi >= 60) return (lo / 60).toFixed(0) + "\uff5e" + (hi / 60).toFixed(0) + " \u5206\u949f";
     return lo + "\uff5e" + hi + " s";
   }
+  var oneSecondStarted = null;
+  document.getElementById('oneSecondStart').addEventListener('click', function(){
+    oneSecondStarted = performance.now();
+    this.disabled = true; document.getElementById('oneSecondStop').disabled = false;
+    document.getElementById('oneSecondResult').textContent = '凭感觉，在 1 秒时暂停…';
+  });
+  document.getElementById('oneSecondStop').addEventListener('click', function(){
+    if(oneSecondStarted === null) return;
+    var seconds = (performance.now()-oneSecondStarted)/1000;
+    oneSecondStarted = null; this.disabled = true; document.getElementById('oneSecondStart').disabled = false;
+    document.getElementById('oneSecondResult').textContent = seconds.toFixed(2)+' s（相差 '+Math.abs(seconds-1).toFixed(2)+' s）';
+  });
   function estCheck() {
     var gv = document.getElementById("estGuessInput").value.trim();
     var fb = document.getElementById("estFeedback");
     if (gv === "") { fb.className = "feedback warn"; fb.textContent = "\u8bf7\u5148\u8f93\u5165\u4f60\u731c\u7684\u79d2\u6570"; return; }
     var g = parseFloat(gv);
     if (isNaN(g)) { fb.className = "feedback warn"; fb.textContent = "\u8f93\u5165\u4e0d\u6b63\u786e"; return; }
+    if (estRunning || estRealMs <= 0) { fb.className = "feedback warn"; fb.textContent = "请实际完成任务并暂停计时，再比较。"; return; }
     var task = EST_TASKS[estIdx] || EST_TASKS[0];
     var tmin = task[2] || 0, tmax = task[3] || 0;
     var cls, txt;
@@ -4787,34 +4826,28 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   var thermoJourneyQa = { solved:[false,false,false] };
 
   function thermoFmt(t) {
-    var n = (thermoMode === "clinical") ? 1 : 1;
-    var s = Number(t).toFixed(n);
+    var n = (thermoMode === "clinical") ? 1 : 0;
+    var s = Number(Number(t).toFixed(n)).toFixed(n);
     if (t > 0 && thermoMode === "lab") return s;
     return s;
   }
 
   var THERMO_EST_SCENES = [
-    { name: "洗澡用的水", min: 38, max: 42 },
-    { name: "放学路上晒过的柏油路面", min: 40, max: 50 },
-    { name: "阳光暴晒的自行车座", min: 45, max: 50 },
-    { name: "夏天树荫下（比操场水泥地凉快）", min: 28, max: 34 },
-    { name: "开水杯放桌上大约 5 分钟", min: 45, max: 50 }
+    {name:'洗澡时感觉温热、舒适的水', min:37, max:40, note:'这是课堂参考范围，不同人的舒适感不同。'},
+    {name:'开着空调、感觉凉爽的夏季教室', min:24, max:28, note:'实际室温随空调设置、人数和位置变化。'},
+    {name:'在冰箱冷藏室放了一夜的饮用水', min:2, max:8, note:'冷藏水摸起来明显冰凉，实际温度与冰箱设置有关。'},
+    {name:'杯中冰块和水共存，充分混合后的冰水', min:0, max:1, note:'在通常气压下，纯净冰水充分混合、接近平衡时约为 0 °C。'},
+    {name:'天气炎热、站着也容易出汗的夏日户外空气', min:30, max:36, note:'这是一个参考情境；湿度、风速和日晒也影响体感，体感不等于气温。'}
   ];
   var thermoEstIdx = -1;
-  var thermoEstNameStr = "";
+  var thermoEstNameStr = '';
   function pickThermoEstScene() {
     thermoEstIdx = (thermoEstIdx + 1) % THERMO_EST_SCENES.length;
-    var sc = THERMO_EST_SCENES[thermoEstIdx];
-    thermoEstNameStr = sc.name;
-    thermoMode = "lab";
-    document.body.setAttribute("data-thermo-kind", "lab");
-    var btns = document.querySelectorAll("#thermoModeToggle .mode-btn");
-    for (var i = 0; i < btns.length; i++) {
-      btns[i].classList.toggle("active", btns[i].getAttribute("data-thermo-mode") === "lab");
-    }
-    var t = sc.min + Math.random() * (sc.max - sc.min);
-    thermoTemp = Math.round(t * 10) / 10;
-    if (thermoTemp > 50) thermoTemp = 50;
+    thermoEstNameStr = THERMO_EST_SCENES[thermoEstIdx].name;
+    document.getElementById('thermoEstName').textContent = thermoEstNameStr;
+    document.getElementById('thermoGuessInput').value = '';
+    document.getElementById('thermoEstReal').textContent = '先估计，再看参考范围';
+    var fb=document.getElementById('thermoEstFeedback'); fb.className='feedback'; fb.textContent='';
   }
   function thermoSceneName(t) {
     if (thermoJourneyState.cur === 4 && thermoEstNameStr) return thermoEstNameStr;
@@ -4838,7 +4871,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     if (thermoMode === "clinical") {
       el.innerHTML = "① 视线与液柱上表面相平；② 读缩口以上那截液柱，不要从玻璃泡读；③ 分度值 0.1 °C，一般读到 0.1 °C，不估读；④ 量程只有 35～42 °C。";
     } else {
-      el.innerHTML = "① 视线与液柱上表面相平；② 先看清 0 刻度，分清零上零下；③ 分度值 1 °C，要估读到 0.1 °C；④ 带上单位 °C。";
+      el.innerHTML = "① 视线与液柱上表面相平；② 先看清 0 刻度，分清零上零下；③ 分度值 1 °C，靠近哪条刻度就读哪条，不估读；④ 带上单位 °C。";
     }
   }
 
@@ -4849,6 +4882,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     } else {
       var raw = THERMO_LAB_MIN + 2 + Math.random() * (THERMO_LAB_MAX - THERMO_LAB_MIN - 4);
       thermoTemp = Math.round(raw * 10) / 10;
+      if (Math.abs(thermoTemp * 10) % 10 === 5) thermoTemp += 0.1;
       if (Math.abs(thermoTemp) < 0.05) thermoTemp = (Math.random() < 0.5) ? -0.7 : 0.8;
     }
   }
@@ -5045,10 +5079,10 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
       fb.textContent = "输入不正确！";
       return;
     }
-    var tol = (thermoMode === "clinical") ? 0.11 : 0.15;
-    var diff = Math.abs(sNum - thermoTemp);
+    var tol = 0.000001;
+    var diff = Math.abs(sNum - Number(thermoFmt(thermoTemp)));
     var cls, msg;
-    var ans = thermoTemp.toFixed(1);
+    var ans = thermoFmt(thermoTemp);
     if (diff <= tol) {
       cls = "good";
       msg = "✅ 完全正确！读数就是 " + ans + " °C，非常好！";
@@ -5068,7 +5102,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
 
   function thermoShowAnswer() {
     document.getElementById("modalContent").innerHTML =
-      "<div class='big'>标准读数：" + thermoTemp.toFixed(1) + " °C</div>";
+      "<div class='big'>标准读数：" + thermoFmt(thermoTemp) + " °C</div>";
     document.getElementById("answerOverlay").classList.add("show");
     thermoRevealed = true;
   }
@@ -5084,7 +5118,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     if (mode === "clinical") {
       inp.min = "35"; inp.max = "42"; inp.step = "0.1"; inp.placeholder = "36.8";
     } else {
-      inp.min = "-20"; inp.max = "50"; inp.step = "0.1"; inp.placeholder = "8.5";
+      inp.min = "-20"; inp.max = "50"; inp.step = "1"; inp.placeholder = "8";
     }
     setThermoMethod();
     if (thermoJourneyState.cur === 1) thermoJourneyBuildQa();
@@ -5093,7 +5127,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
 
   function thermoJourneyStageLabel(n) {
     var s = document.getElementById("thermoStatus"); if (!s) return;
-    var msg = ["", "先观察：认清单位、量程和分度值。", "请读出液柱上端对应的温度。", "找出小刚的错误。", "先估一估，再显示刻度核对。", "比较体温计和实验室温度计谁更精细。"][n] || "";
+    var msg = ["", "先观察：认清单位、量程和分度值。", "请读出液柱上端对应的温度。", "找出小刚的错误。", "联系生活经验估计温度，再看参考范围。", "比较体温计和实验室温度计谁更精细。"][n] || "";
     s.className = "ruler-status-v3 " + (n === 1 || n === 5 ? "idle" : "ready");
     s.textContent = msg;
   }
@@ -5139,7 +5173,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
       var name = document.getElementById("thermoEstName");
       if (name) name.textContent = thermoEstNameStr;
       var big = document.getElementById("thermoEstReal");
-      if (big) big.textContent = "实测：先不看刻度";
+      if (big) big.textContent = "先估计，再看参考范围";
       var gh = document.getElementById("thermoGuessInput");
       if (gh) gh.value = "";
       var ef = document.getElementById("thermoEstFeedback");
@@ -5234,7 +5268,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     }
     return [
       "① 正负号读反了",
-      "② 只读到整数度，漏了估读 0.1 °C",
+      "② 多数或少数了一个小格",
       "③ 把刻度从玻璃泡底部乱数上去了",
       "④ 读得完全正确"
     ];
@@ -5245,7 +5279,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     thermoScaleVisible = true;
     thermoDraw();
     var type = Math.floor(Math.random() * 4);
-    var actual = thermoTemp;
+    var actual = Number(thermoFmt(thermoTemp));
     var shown;
     if (thermoMode === "clinical") {
       if (type === 0) shown = (actual % 10);
@@ -5254,11 +5288,11 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
       else shown = actual;
     } else {
       if (type === 0) shown = -actual;
-      else if (type === 1) shown = Math.round(actual);
+      else if (type === 1) shown = actual + 1;
       else if (type === 2) shown = actual + 5;
       else shown = actual;
     }
-    if (type !== 3 && Math.abs(shown - actual) < 0.05) type = 1;
+    if (type !== 3 && Math.abs(shown - actual) < 0.05) type = 3;
     thermoJourneyState.fault = { type: type, actual: actual, shown: shown };
     document.getElementById("thermoFaultReading").textContent = Number(shown).toFixed(1) + " °C";
     var box = document.getElementById("thermoFaultOpts");
@@ -5298,36 +5332,19 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   }
 
   function showThermoScale() {
-    thermoScaleVisible = true;
-    document.body.setAttribute("data-thermo-scale", "on");
-    thermoDraw();
-    var big = document.getElementById("thermoEstReal");
-    if (big) big.textContent = "可以对照刻度了";
+    var sc=THERMO_EST_SCENES[thermoEstIdx];
+    document.getElementById('thermoEstReal').textContent='参考：'+sc.min+'～'+sc.max+' °C';
+    var fb=document.getElementById('thermoEstFeedback');fb.className='feedback warn';fb.textContent=sc.note+' 生活情境没有唯一标准温度。';
   }
-
   function thermoJourneyEstimate() {
-    if (thermoJourneyState.cur !== 4) return;
-    var sv = document.getElementById("thermoGuessInput").value.trim();
-    var fb = document.getElementById("thermoEstFeedback");
-    if (sv === "") { fb.className = "feedback warn"; fb.textContent = "先写一个估计值"; return; }
-    var g = parseFloat(sv);
-    if (isNaN(g)) { fb.className = "feedback warn"; fb.textContent = "输入不正确"; return; }
-    if (!thermoScaleVisible) showThermoScale();
-    var diff = Math.abs(g - thermoTemp);
-    var loose = (thermoMode === "clinical") ? 1.2 : 8;
-    if (diff <= loose) {
-      fb.className = "feedback good";
-      fb.textContent = "✓ 估得不错。实测 " + thermoTemp.toFixed(1) + " °C（" + thermoSceneName(thermoTemp) + "）。";
-      if (!thermoJourneyState.done[3]) {
-        thermoJourneyMark(4);
-        document.getElementById("thermoGo5Btn").classList.remove("hidden");
-      }
-    } else {
-      fb.className = "feedback bad";
-      fb.textContent = "差得有点远。实测是 " + thermoTemp.toFixed(1) + " °C。再看液柱高低。";
-    }
+    var input=document.getElementById('thermoGuessInput'),fb=document.getElementById('thermoEstFeedback');
+    if(!input.value.trim() || !Number.isFinite(Number(input.value))){fb.className='feedback warn';fb.textContent='请先填写估计的温度。';return;}
+    var g=Number(input.value),sc=THERMO_EST_SCENES[thermoEstIdx];
+    showThermoScale();
+    fb.textContent='你的估计：'+g+' °C。'+(g>=sc.min&&g<=sc.max?'在本情境的参考范围内。':'可以结合参考范围，再想想当时的冷暖感受。')+sc.note;
+    thermoJourneyMark(4);document.getElementById('thermoGo5Btn').classList.remove('hidden');
   }
-
+  document.getElementById('thermoSceneNext').addEventListener('click',pickThermoEstScene);
   function thermoJourneyPrecision(v) {
     var r = document.getElementById("thermoCompareResult");
     var bs = document.querySelectorAll("#thermoCompareChoices button");
@@ -5336,7 +5353,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
       r.textContent = "✓ 体温计分度只有 0.1 °C，读体温更细。但它量程窄，不能测开水或冰柜。";
       thermoJourneyState.precisionDone = true;
     } else {
-      r.textContent = "实验室温度计一格是 1 °C，要估读；量程宽，可测零下和热水，但读体温不够细。";
+      r.textContent = "实验室温度计一格是 1 °C，不估读；本图量程 −20～50 °C，可测范围内的温度，但读体温不够细。";
     }
     if (thermoJourneyState.precisionDone && !thermoJourneyState.done[4]) {
       thermoJourneyMark(5);
@@ -5395,6 +5412,11 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   thermoJourneyGo(1);
 
 
+  document.querySelectorAll('button').forEach(function(btn){
+    if(/换一题|换一道/.test(btn.textContent)||['estNextBtn','rulerFaultNextBtn','thermoFaultNextBtn'].includes(btn.id)) {
+      btn.classList.add('next-question');btn.textContent='🎲 换一题';
+    }
+  });
   switchTab("watch");
 })();
 </script>
