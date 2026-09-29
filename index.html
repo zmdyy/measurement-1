@@ -1453,6 +1453,23 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   #springFeedback { min-height:28px; margin-top:8px; line-height:1.5; color:#475569; }
   #springFeedback.good { color:#15803d; } #springFeedback.bad { color:#b91c1c; }
   @media(max-width:800px) { .tabs { flex-wrap:wrap; } #tab-spring { overflow:auto; padding:10px; } .spring-scenes { flex:none; grid-template-columns:1fr; } #springMain { height:530px; flex:none; } .spring-zoom-wrap { height:270px; flex:none; } }
+
+  #tab-cylinder { overflow:hidden; padding:12px 20px; gap:10px; }
+  .cyl-top { display:flex; align-items:center; gap:14px; flex-wrap:wrap; flex:none; }
+  .cyl-top h2 { font-size:20px; margin-right:auto; }
+  .cyl-top select { font:inherit; padding:7px; border:1px solid #cbd5e1; border-radius:8px; background:white; }
+  .cyl-scenes { display:grid; grid-template-columns:1fr 1fr; gap:14px; flex:1; min-height:0; }
+  .cyl-scene { min-width:0; min-height:0; display:flex; flex-direction:column; background:white; border-radius:14px; padding:10px; }
+  .cyl-scene h3 { flex:none; font-size:17px; color:#475569; text-align:center; }
+  .cyl-scene svg { flex:1; width:100%; height:100%; min-height:0; }
+  #cylinderForm { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  #cylinderForm label { display:flex; align-items:center; gap:5px; font-size:14px; }
+  #cylinderForm input { width:72px; font:inherit; font-size:20px; padding:6px; border:2px solid #cbd5e1; border-radius:7px; }
+  #cylinderForm .btn.primary { flex:0 0 auto; }
+  .cyl-foot { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-top:8px; }
+  #cylinderFeedback { flex:1; min-height:26px; font-size:14px; line-height:1.5; color:#475569; }
+  #cylinderFeedback.good { color:#15803d; } #cylinderFeedback.bad { color:#b91c1c; }
+  @media(max-width:800px) { #tab-cylinder { overflow:auto; padding:10px; } .cyl-scenes { flex:none; grid-template-columns:1fr; } .cyl-scene svg { flex:none; height:470px; } }
 </style>
 </head>
 <body>
@@ -1469,6 +1486,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   <button class="tab-btn" data-tab="voltmeter">Ⓥ 电压表练习</button>
   <button class="tab-btn" data-tab="balance">⚖ 托盘天平练习</button>
   <button class="tab-btn" data-tab="spring">↕ 弹簧测力计练习</button>
+  <button class="tab-btn" data-tab="cylinder">▥ 量筒练习</button>
 </div>
 
 <div class="tab-panel" id="tab-watch">
@@ -2001,6 +2019,45 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
 
 
 
+
+
+<section class="tab-panel" id="tab-cylinder" aria-label="量筒读数练习">
+  <div class="cyl-top"><h2>量筒读数 · 排水法测体积</h2><label>放入物体 <select id="cylinderObject"><option value="random">随机物体</option><option value="stone">小石块</option><option value="aluminum">铝块</option><option value="iron">铁块</option></select></label><span class="spring-note">视线与凹液面最低处相平</span></div>
+  <div class="cyl-scenes"><div class="cyl-scene"><h3>放入前 · 只有水</h3><svg id="cylinderBefore" viewBox="0 0 500 650" role="img" aria-label="放入前的量筒及液面局部放大图"></svg></div><div class="cyl-scene"><h3 id="cylinderAfterTitle">放入后 · 物体完全浸没</h3><svg id="cylinderAfter" viewBox="0 0 500 650" role="img" aria-label="放入后的量筒及液面局部放大图"></svg></div></div>
+  <div class="balance-console"><form id="cylinderForm"><label>放入前 <input id="cylinderV1" type="number" min="0" max="50" step="any" inputmode="decimal" autocomplete="off">mL</label><label>放入后 <input id="cylinderV2" type="number" min="0" max="50" step="any" inputmode="decimal" autocomplete="off">mL</label><label>物体体积 <input id="cylinderVolume" type="number" min="0" max="50" step="any" inputmode="decimal" autocomplete="off">cm³</label><button class="btn primary" type="submit">✓ 检查</button><button class="btn" type="button" id="cylinderReveal">查看答案</button><button class="btn" type="button" id="cylinderNext">🎲 换一题</button></form><div class="cyl-foot"><div id="cylinderFeedback" role="status" aria-live="polite">物体完全浸没，无气泡、无溢水。请分别读数，再求体积。</div><div class="balance-stats"><span>答对 <b id="cylinderOk">0</b></span><span>答错 <b id="cylinderErr">0</b></span><button id="cylinderClear" type="button">清空统计</button></div></div></div>
+</section>
+<script>
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id),items=[{id:'stone',name:'小石块'},{id:'aluminum',name:'铝块'},{id:'iron',name:'铁块'}];
+  let q,ok=0,err=0,counted=false,revealed=false;
+  const y=v=>560-v*8;
+  const text=(x,yy,t,size=23)=>`<text x="${x}" y="${yy}" text-anchor="middle" font-family="Arial,Microsoft YaHei,sans-serif" font-size="${size}" fill="#202020">${t}</text>`;
+  function water(cx,value,id){const yy=y(value);return `<path data-liquid="${value}" d="M${cx-44} ${yy-6}Q${cx-41} ${yy} ${cx-33} ${yy}H${cx+33}Q${cx+41} ${yy} ${cx+44} ${yy-6}V558Q${cx} 568 ${cx-44} 558Z" fill="url(#${id}Water)"/><path d="M${cx-44} ${yy-6}Q${cx-41} ${yy} ${cx-33} ${yy}H${cx+33}Q${cx+41} ${yy} ${cx+44} ${yy-6}" fill="none" stroke="#65bddb" stroke-width="1"/>`;}
+  function markings(cx,zoomValue=null){let t='';for(let n=5;n<=50;n++){const yy=y(n),major=n%10===0,half=n%5===0;t+=`<path data-tick="${n}" d="M${cx-(major?37:half?29:22)} ${yy}H${cx+22}" fill="none" stroke="#222" stroke-width="${major?1.8:1.1}"/>`;if(major && (zoomValue===null || Math.max(Math.abs(2*(yy-3-y(zoomValue))),Math.abs(2*(yy-3-y(zoomValue))-32))**2+86**2<136**2))t+=text(cx+33,yy-3,n,16);}return t;}
+  function solid(cx){const h=32+q.volume*6,top=555-h;
+    if(q.item.id==='stone')return `<g data-solid="stone"><path d="M${cx-34} 537L${cx-37} ${top+30}L${cx-20} ${top+3}L${cx+11} ${top}L${cx+34} ${top+22}L${cx+38} 530L${cx+23} 553L${cx-17} 557Z" fill="#88654e" stroke="#513c2e" stroke-width="2.5"/><path d="M${cx-20} ${top+7}L${cx-10} ${top+34}L${cx+25} ${top+24}M${cx-10} ${top+34}L${cx+8} 542L${cx+30} 531" fill="none" stroke="#b69678" stroke-width="3"/></g>`;
+    const fill=q.item.id==='aluminum'?'#a6b2bd':'#626c7b';return `<g data-solid="${q.item.id}"><path d="M${cx-32} ${top+12}L${cx+22} ${top}L${cx+34} ${top+14}V545L${cx-19} 557L${cx-32} 543Z" fill="${fill}" stroke="#3c4856" stroke-width="2"/><path d="M${cx-32} ${top+12}L${cx-19} ${top+27}L${cx+34} ${top+14}M${cx-19} ${top+27}V557" fill="none" stroke="#e0e6eb" stroke-width="2"/><path d="M${cx-10} ${top+39}L${cx+20} ${top+32}" stroke="#dbe3ea" stroke-width="3"/></g>`;
+  }
+  function drawScene(id,value,after){const cx=after?370:130,bx=after?146:354,by=330,r=136,yy=y(value),zoom=2;
+    let svg=`<defs><linearGradient id="${id}Water"><stop stop-color="#a4def2"/><stop offset=".5" stop-color="#edfaff"/><stop offset="1" stop-color="#a4def2"/></linearGradient><clipPath id="${id}Clip"><circle cx="${bx}" cy="${by}" r="${r}"/></clipPath></defs>`;
+    svg+=`<path d="M${cx-55} 39H${cx+48}Q${cx+50} 39 ${cx+50} 44V568Q${cx+77} 587 ${cx+84} 609H${cx-84}Q${cx-76} 587 ${cx-50} 568V57Q${cx-50} 48 ${cx-61} 46Q${cx-66} 39 ${cx-55} 39Z" fill="#fafeff" stroke="#363636" stroke-width="2"/>`;
+    svg+=water(cx,value,id);if(after)svg+=solid(cx);svg+=markings(cx);
+    svg+=`<path d="M${cx-61} 46H${cx+49}M${cx-88} 610H${cx+88}L${cx+94} 617H${cx-94}Z" fill="#e6f4f9" stroke="#333" stroke-width="2"/>`+text(cx,96,'20 °C',23)+text(cx,124,'50 mL',23);
+    // True magnification: the same liquid path and scale are transformed together.
+    const edge=cx+(after?-44:44),near=bx+(after?r*.7:-r*.7);
+    svg+=`<path d="M${edge} ${yy}Q${near} ${yy} ${near} ${by+r*.68}" fill="none" stroke="#29a5d7" stroke-width="2.5"/><circle cx="${bx}" cy="${by}" r="${r}" fill="white"/><g clip-path="url(#${id}Clip)"><g data-zoom-volume="${value}" transform="translate(${bx-zoom*cx} ${by-zoom*yy}) scale(${zoom})">${water(cx,value,id)}${markings(cx,value)}</g></g><circle cx="${bx}" cy="${by}" r="${r}" fill="none" stroke="#29a5d7" stroke-width="2.5"/>`;
+    $(id).innerHTML=svg;$(id).dataset.volume=value;
+  }
+  function draw(){drawScene('cylinderBefore',q.before,false);drawScene('cylinderAfter',q.after,true);$('cylinderAfterTitle').textContent='放入后 · '+q.item.name+'完全浸没';}
+  function feedback(msg,cls=''){$('cylinderFeedback').textContent=msg;$('cylinderFeedback').className=cls;}
+  function stats(){$('cylinderOk').textContent=ok;$('cylinderErr').textContent=err;}
+  function next(){const selected=$('cylinderObject').value;let item,before,volume;do{item=selected==='random'?items[Math.floor(Math.random()*items.length)]:items.find(o=>o.id===selected);before=15+Math.floor(Math.random()*16);volume=4+Math.floor(Math.random()*11);}while(q&&q.item.id===item.id&&q.before===before&&q.volume===volume);q={item,before,volume,after:before+volume};counted=false;revealed=false;for(const id of ['cylinderV1','cylinderV2','cylinderVolume'])$(id).value='';feedback('物体完全浸没，无气泡、无溢水。请分别读数，再求体积。');draw();}
+  $('cylinderForm').addEventListener('submit',e=>{e.preventDefault();const ids=['cylinderV1','cylinderV2','cylinderVolume'],values=ids.map(id=>$(id).value.trim());if(values.some(v=>v===''||!Number.isFinite(Number(v))||Number(v)<0||Number(v)>50)){feedback('请填写两次液体读数和物体体积（0～50之间）。');return;}const expected=[q.before,q.after,q.volume],names=['放入前读数','放入后读数','物体体积'],wrong=names.filter((_,i)=>Math.abs(Number(values[i])-expected[i])>1e-8);if(!counted&&!revealed){if(wrong.length)err++;else ok++;counted=true;stats();}feedback((wrong.length?'请再核对：'+wrong.join('、')+'。':'✓ 两次读数和物体体积都正确！')+(revealed?'（本题已看答案，不计分）':''),wrong.length?'bad':'good');});
+  $('cylinderReveal').addEventListener('click',()=>{revealed=true;document.getElementById('modalContent').innerHTML=`<div class="big" style="white-space:normal">物体体积：${q.volume} cm³</div><div class="detail">量筒量程为 0～50 mL，分度值为 1 mL，读凹液面最低处。<br>放入前：V₁＝${q.before} mL；放入后：V₂＝${q.after} mL。<br>物体完全浸没，V物＝V₂－V₁＝${q.after}－${q.before}＝${q.volume} mL＝<b>${q.volume} cm³</b>。<br>1 mL＝1 cm³。物体不溶于水，且无明显吸水、无气泡、无溢水。</div>`;document.getElementById('answerOverlay').classList.add('show');});
+  $('cylinderNext').addEventListener('click',next);$('cylinderObject').addEventListener('change',next);$('cylinderClear').addEventListener('click',()=>{ok=0;err=0;stats();});next();
+})();
+</script>
 
 <section class="tab-panel" id="tab-spring" aria-label="弹簧测力计读数练习">
   <div class="spring-top"><h2>弹簧测力计读数</h2><label>悬挂物体 <select id="springObject"><option value="random">随机物体</option><option value="eraser">一块橡皮</option><option value="keys">一串钥匙</option><option value="egg">一枚鸡蛋</option><option value="apple">一个苹果</option><option value="orange">一个橙子</option><option value="water">一小瓶水（含瓶）</option><option value="rice">一小袋米（含袋）</option></select></label></div>
@@ -3400,6 +3457,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   var currentTab = "watch";
   function switchTab(tab) {
     currentTab = tab;
+    document.getElementById("tab-cylinder").classList.toggle("active", tab === "cylinder");
     document.getElementById("tab-spring").classList.toggle("active", tab === "spring");
     document.getElementById("tab-balance").classList.toggle("active", tab === "balance");
     document.getElementById("tab-ammeter").classList.toggle("active", tab === "ammeter");
