@@ -1437,6 +1437,22 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   #balanceFeedback { min-height:28px; margin-top:8px; font-size:15px; line-height:1.5; color:#475569; }
   #balanceFeedback.good { color:#15803d; } #balanceFeedback.bad { color:#b91c1c; }
   @media(max-width:800px) { #tab-balance { overflow:auto; padding:10px; } .balance-scenes { flex:none; grid-template-columns:1fr; } .balance-scene svg { height:300px; flex:none; } .balance-stats { margin-left:0; } }
+
+  #tab-spring { overflow:hidden; padding:12px 20px; gap:12px; }
+  .spring-top { display:flex; gap:16px; align-items:center; flex-wrap:wrap; flex:none; }
+  .spring-top h2 { margin-right:auto; font-size:20px; }
+  .spring-top select { font:inherit; padding:7px; border:1px solid #cbd5e1; border-radius:8px; background:white; }
+  .spring-scenes { display:grid; grid-template-columns:1fr 1fr; flex:1; min-height:0; gap:16px; }
+  .spring-scene { background:white; border-radius:14px; padding:12px; min-width:0; min-height:0; display:flex; flex-direction:column; }
+  .spring-scene h3 { font-size:16px; color:#475569; flex:none; }
+  #springMain { width:100%; height:100%; min-height:0; flex:1; }
+  .spring-zoom-wrap { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; }
+  #springZoom { width:100%; max-height:100%; height:340px; }
+  .spring-note { color:#64748b; font-size:13px; line-height:1.6; flex:none; }
+  #springInput { width:110px; padding:7px; border:2px solid #cbd5e1; border-radius:8px; font:inherit; font-size:22px; }
+  #springFeedback { min-height:28px; margin-top:8px; line-height:1.5; color:#475569; }
+  #springFeedback.good { color:#15803d; } #springFeedback.bad { color:#b91c1c; }
+  @media(max-width:800px) { .tabs { flex-wrap:wrap; } #tab-spring { overflow:auto; padding:10px; } .spring-scenes { flex:none; grid-template-columns:1fr; } #springMain { height:530px; flex:none; } .spring-zoom-wrap { height:270px; flex:none; } }
 </style>
 </head>
 <body>
@@ -1452,6 +1468,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
   <button class="tab-btn" data-tab="ammeter">Ⓐ 电流表练习</button>
   <button class="tab-btn" data-tab="voltmeter">Ⓥ 电压表练习</button>
   <button class="tab-btn" data-tab="balance">⚖ 托盘天平练习</button>
+  <button class="tab-btn" data-tab="spring">↕ 弹簧测力计练习</button>
 </div>
 
 <div class="tab-panel" id="tab-watch">
@@ -1984,6 +2001,55 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
 
 
 
+
+<section class="tab-panel" id="tab-spring" aria-label="弹簧测力计读数练习">
+  <div class="spring-top"><h2>弹簧测力计读数</h2><label>悬挂物体 <select id="springObject"><option value="random">随机物体</option><option value="eraser">一块橡皮</option><option value="keys">一串钥匙</option><option value="egg">一枚鸡蛋</option><option value="apple">一个苹果</option><option value="orange">一个橙子</option><option value="water">一小瓶水（含瓶）</option><option value="rice">一小袋米（含袋）</option></select></label></div>
+  <div class="spring-scenes"><div class="spring-scene"><h3 id="springObjectName"></h3><svg id="springMain" viewBox="0 0 500 940" role="img" aria-label="竖直悬挂物体的弹簧测力计"></svg></div><div class="spring-scene"><h3>指针附近刻度 · 局部放大</h3><div class="spring-zoom-wrap"><svg id="springZoom" viewBox="160 270 180 150" role="img" aria-label="与主图对应的指针及附近刻度"></svg></div><p class="spring-note">物体静止悬挂，示数等于物体所受重力。<br>按 g＝10 N/kg 设置题目；细线与网兜质量忽略。</p></div></div>
+  <div class="balance-console"><form id="springForm" class="balance-answer-row"><label for="springInput">我的读数</label><input id="springInput" type="number" min="0" max="5" step="any" inputmode="decimal" autocomplete="off"><b>N</b><button type="submit" class="btn primary">✓ 检查</button><button type="button" class="btn" id="springReveal">查看答案</button><button type="button" class="btn" id="springNext">🎲 换一题</button><div class="balance-stats"><span>答对 <b id="springOk">0</b></span><span>答错 <b id="springErr">0</b></span><button id="springClear" type="button">清空统计</button></div></form><div id="springFeedback" role="status" aria-live="polite">请读出弹簧测力计的示数。</div></div>
+</section>
+<script>
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  // Mass includes the named packaging, with g = 10 N/kg; 10 g per 0.1 N.
+  const objects=[{id:'eraser',name:'一块橡皮',min:10,max:30},{id:'keys',name:'一串钥匙',min:30,max:80},{id:'egg',name:'一枚鸡蛋',min:50,max:60},{id:'apple',name:'一个苹果',min:100,max:250},{id:'orange',name:'一个橙子',min:100,max:250},{id:'water',name:'一小瓶水（含瓶）',min:300,max:480},{id:'rice',name:'一小袋米（含袋）',min:100,max:450}];
+  let q,ok=0,err=0,counted=false,revealed=false;
+  const txt=(x,y,value,size=22)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" fill="#222" font-family="Arial,Microsoft YaHei,sans-serif">${value}</text>`;
+  function instrument(prefix){
+    const py=300+q.ticks*6,hook=730+q.ticks*.7;
+    let svg=`<defs><linearGradient id="${prefix}Metal"><stop stop-color="#777"/><stop offset=".35" stop-color="#eee"/><stop offset=".7" stop-color="#b7b7b7"/><stop offset="1" stop-color="#666"/></linearGradient></defs><circle cx="250" cy="77" r="62" fill="none" stroke="url(#${prefix}Metal)" stroke-width="12"/><rect x="222" y="111" width="56" height="40" fill="#c4c8ca"/>
+      <path d="M155 153Q250 102 345 153V682Q250 727 155 682Z" fill="#277583"/><path d="M162 212Q196 193 220 193Q250 146 280 193Q310 194 338 212V638Q250 677 162 638Z" fill="white" stroke="#aab3b5" stroke-width="2"/>
+      ${txt(250,219,'5 N',25)}${txt(250,249,'条形盒',22)}${txt(250,276,'测力计',22)}${txt(180,291,'N',21)}${txt(320,291,'N',21)}
+      <rect x="242" y="284" width="16" height="350" fill="#343434"/>`;
+    // The coil extends as the pointer moves down. The rod and hook carry the load.
+    let coil='M244 285';for(let i=0;i<20;i++)coil+=`L${i%2?244:256} ${285+(py-285)*(i+1)/20}`;
+    svg+=`<path d="${coil}" fill="none" stroke="#ddd" stroke-width="2.5"/><rect x="243" y="${py}" width="14" height="${hook-24-py}" fill="url(#${prefix}Metal)"/>`;
+    for(let i=0;i<=50;i++){const y=300+i*6,len=i%10===0?32:i%5===0?25:19;svg+=`<path d="M${242-len} ${y}H242M258 ${y}H${258+len}" stroke="#272727" stroke-width="1.5"/>`;if(i%10===0)svg+=txt(191,y+7,i/10,22)+txt(309,y+7,i/10,22);}
+    svg+=`<path data-pointer="${q.ticks}" d="M207 ${py}L250 ${py-4}L293 ${py}L250 ${py+4}Z" fill="#c9222b"/>
+      <path d="M230 695V${hook-27}Q250 ${hook-7} 270 ${hook-27}V695" fill="none" stroke="#c7cbce" stroke-width="9"/><path d="M250 ${hook-26}C279 ${hook-24} 250 ${hook-4} 240 ${hook+7}C218 ${hook+33} 257 ${hook+43} 269 ${hook+16}" fill="none" stroke="#898d90" stroke-width="6"/><path d="M250 ${hook-26}C279 ${hook-24} 250 ${hook-4} 240 ${hook+7}C218 ${hook+33} 257 ${hook+43} 269 ${hook+16}" fill="none" stroke="#e3e5e6" stroke-width="2"/>`;
+    return svg;
+  }
+  function object(){
+    const top=770+q.ticks*.7;let body='';
+    if(q.object.id==='keys')body='<circle cx="250" cy="34" r="17" fill="none" stroke="#929ba5" stroke-width="5"/><path d="M237 45L216 91L224 95L229 85L237 89M258 45L273 94L281 91L279 80L286 77" fill="none" stroke="#b8bec5" stroke-width="8"/>';
+    else if(q.object.id==='eraser')body='<path d="M216 38L270 32L282 47V87L228 93L216 80Z" fill="#ddd5bc" stroke="#9e9888"/><path d="M216 38L228 50L282 47L270 32Z" fill="#f1eacf"/>';
+    else if(q.object.id==='water')body='<rect x="237" y="23" width="26" height="13" rx="3" fill="#5e91b6"/><path d="M238 36Q216 43 220 64V103Q250 112 280 103V64Q284 43 262 36Z" fill="#c8e5f0" stroke="#769caf" stroke-width="2"/><path d="M222 70H278V96H222Z" fill="#76b8d2"/><path d="M228 52V98" stroke="white" stroke-width="4" opacity=".7"/>';
+    else if(q.object.id==='rice')body='<path d="M233 27L267 27L284 104Q250 116 216 104Z" fill="#e6d7ac" stroke="#ac9765" stroke-width="2"/><path d="M233 28H267M240 51L244 55M264 66L259 71M236 81L241 85M261 96L267 99" stroke="#aa966b" stroke-width="3"/>';
+    else if(q.object.id==='egg')body='<path d="M250 29C226 28 215 69 222 91C229 112 273 112 280 91C285 69 272 31 250 29Z" fill="#eed6b4" stroke="#b29a7d" stroke-width="2"/>';
+    else body=`<path d="M250 42C220 25 201 60 216 92C228 117 246 103 250 103C258 106 276 113 287 86C300 54 273 27 250 42Z" fill="${q.object.id==='apple'?'#c9574b':'#ed9c31'}" stroke="${q.object.id==='apple'?'#954238':'#be7c25'}" stroke-width="2"/><path d="M250 43L254 27" stroke="#6f5933" stroke-width="4"/><path d="M252 35Q271 17 277 34Q264 43 252 35Z" fill="#6b9150"/>`;
+    const sling=q.object.id==='keys'?'':`<path d="M250 0L211 83Q214 114 250 115Q286 114 290 83L250 0M225 100L250 115L275 100" fill="none" stroke="#87979e" stroke-width="1.5"/>`;
+    return `<g data-object="${q.object.id}" transform="translate(0 ${top})"><path d="M250 -9V${q.object.id==='keys'?17:0}" stroke="#87979e" stroke-width="2"/>${body}${sling}</g>`;
+  }
+  function draw(){const py=300+q.ticks*6;$('springMain').innerHTML=instrument('springMain')+object();$('springZoom').innerHTML=instrument('springZoom');$('springZoom').setAttribute('viewBox',`160 ${Math.max(265,Math.min(535,py-70))} 180 150`);$('springObjectName').textContent=q.object.name+' · 静止悬挂';}
+  function feedback(msg,cls=''){$('springFeedback').textContent=msg;$('springFeedback').className=cls;}
+  function next(){let object,mass;const selected=$('springObject').value;do{object=selected==='random'?objects[Math.floor(Math.random()*objects.length)]:objects.find(o=>o.id===selected);mass=object.min+10*Math.floor(Math.random()*((object.max-object.min)/10+1));}while(q&&q.object.id===object.id&&q.mass===mass);q={object,mass,ticks:mass/10};counted=false;revealed=false;$('springInput').value='';feedback('请读出弹簧测力计的示数。');draw();}
+  function stats(){$('springOk').textContent=ok;$('springErr').textContent=err;}
+  $('springForm').addEventListener('submit',e=>{e.preventDefault();const raw=$('springInput').value.trim(),value=Number(raw);if(raw===''||!Number.isFinite(value)||value<0||value>5){feedback('请输入 0～5 N 之间的有效读数。');return;}const correct=Math.abs(value-q.ticks/10)<1e-8;if(!counted&&!revealed){if(correct)ok++;else err++;counted=true;stats();}feedback((correct?'✓ 读数正确！':'读数有误，请看红色指针尖端对应的刻度。')+(revealed?'（本题已看答案，不计分）':''),correct?'good':'bad');});
+  $('springReveal').addEventListener('click',()=>{revealed=true;document.getElementById('modalContent').innerHTML=`<div class="big" style="white-space:normal">标准读数：${(q.ticks/10).toFixed(1)} N</div><div class="detail">量程为 0～5 N，分度值为 0.1 N，指针在零刻度下方第 ${q.ticks} 小格。<br>物体静止悬挂，所受重力等于测力计示数。<br>本题${q.object.name}的模拟质量为 ${q.mass} g，G＝mg＝${(q.mass/1000).toFixed(2)} kg × 10 N/kg＝${(q.ticks/10).toFixed(1)} N。</div>`;document.getElementById('answerOverlay').classList.add('show');});
+  $('springNext').addEventListener('click',next);$('springObject').addEventListener('change',next);$('springClear').addEventListener('click',()=>{ok=0;err=0;stats();});next();
+})();
+</script>
+
 <section class="tab-panel" id="tab-balance" aria-label="托盘天平读数练习">
   <div class="balance-toolbar"><h2>托盘天平读数</h2><label>物体 <select id="balanceObject"><option value="random">随机物体</option><option value="clip">一枚回形针</option><option value="smallEraser">一小块橡皮</option><option value="eraser">一块普通橡皮</option><option value="egg">一枚鸡蛋</option><option value="notebook">一本薄练习本</option><option value="book">一本小开本薄书</option></select></label><label>游码 <select id="balancePosition"><option value="mixed">随机位置</option><option value="line">正对刻度</option><option value="between">两刻度之间</option></select></label></div>
   <div class="balance-scenes">
@@ -2014,7 +2080,7 @@ body[data-thermo-scale="off"] #tab-thermo .ruler-console-v3{grid-column:1!import
       if(i%5===0)out+=text(tx,y+61,i===25?'5 g':String(i/5),23);
     }
     // Left edge is the reading edge, exactly shared by the two views.
-    out+=`<g data-slider="${question.slider}" transform="translate(${slider} 0)"><rect x="0" y="${y-7}" width="29" height="25" fill="#747474"/><rect x="22" y="${y+15}" width="7" height="61" fill="#747474"/><rect x="0" y="${y+72}" width="29" height="24" fill="#747474"/></g></g>`;
+    out+=`<g data-slider="${question.slider}" transform="translate(${slider} 0)"><rect x="0" y="${y-7}" width="29" height="25" fill="#747474"/><rect x="0" y="${y+72}" width="29" height="24" fill="#747474"/></g></g>`;
     return out;
   }
   function objectDrawing(){
@@ -3324,6 +3390,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   var currentTab = "watch";
   function switchTab(tab) {
     currentTab = tab;
+    document.getElementById("tab-spring").classList.toggle("active", tab === "spring");
     document.getElementById("tab-balance").classList.toggle("active", tab === "balance");
     document.getElementById("tab-ammeter").classList.toggle("active", tab === "ammeter");
     document.getElementById("tab-voltmeter").classList.toggle("active", tab === "voltmeter");
