@@ -2192,7 +2192,7 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
     let coil='M244 285';for(let i=0;i<20;i++)coil+=`L${i%2?244:256} ${285+(py-285)*(i+1)/20}`;
     svg+=`<path d="${coil}" fill="none" stroke="#ddd" stroke-width="2.5"/><rect x="243" y="${py}" width="14" height="${hook-24-py}" fill="url(#${prefix}Metal)"/>`;
     for(let i=0;i<=Math.round(q.spec.max/q.spec.step);i++){const y=300+i*q.spec.step/q.spec.max*300,major=i%q.spec.major===0,len=major?32:19;svg+=`<path data-tick="${i}" d="M${242-len} ${y}H242M258 ${y}H${258+len}" stroke="#272727" stroke-width="1.5"/>`;if(major){const label=Number((i*q.spec.step).toFixed(1));svg+=txt(191,y+7,label,22)+txt(309,y+7,label,22);}}
-    svg+=`<path data-pointer="${q.ticks}" d="M207 ${py}L250 ${py-4}L293 ${py}L250 ${py+4}Z" fill="#c9222b"/>
+    svg+=`<path data-pointer="${q.ticks}" data-pointer-clearance="1.25" d="M244 ${py}L250 ${py-1.4}L256 ${py}L250 ${py+1.4}Z" fill="#c9222b"/>
       <path d="M230 695V${hook-27}Q250 ${hook-7} 270 ${hook-27}V695" fill="none" stroke="#c7cbce" stroke-width="9"/><path d="M250 ${hook-26}C279 ${hook-24} 250 ${hook-4} 240 ${hook+7}C218 ${hook+33} 257 ${hook+43} 269 ${hook+16}" fill="none" stroke="#898d90" stroke-width="6"/><path d="M250 ${hook-26}C279 ${hook-24} 250 ${hook-4} 240 ${hook+7}C218 ${hook+33} 257 ${hook+43} 269 ${hook+16}" fill="none" stroke="#e3e5e6" stroke-width="2"/>`;
     return svg;
   }
