@@ -169,7 +169,7 @@
       <path d="M104 180H416M104 182V280" stroke="#edf2e7" stroke-opacity=".58" stroke-width="1.2" fill="none"/>
       <path d="M104 281H416V181" stroke="#555e50" stroke-opacity=".35" fill="none"/>
       <g fill="#222b23">${digits}</g>
-      <text x="408" y="273" text-anchor="end" fill="#2e3b32" font-size="17" font-weight="700">kWh</text>
+      <text x="408" y="279" text-anchor="end" fill="#2e3b32" font-size="14" font-weight="700">kWh</text>
       <circle cx="114" cy="317" r="7.6" fill="#78817a" stroke="#565e57" stroke-width="1"/>
       <circle cx="114" cy="317" r="4.1" fill="#7b2224"/>
       <circle cx="112.5" cy="315.5" r="1.25" fill="#e39a90" opacity=".75"/>
