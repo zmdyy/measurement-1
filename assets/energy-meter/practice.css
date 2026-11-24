@@ -151,102 +151,51 @@
 
 .energy-sense {
   display: grid;
-  gap: 20px;
-  width: min(100%, 1570px);
-  margin-inline: auto;
-  padding: 20px;
-  color: #152b45;
-}
-
-.energy-sense-heading h2 {
-  font-size: clamp(21px, 2.2vw, 30px);
-  margin-bottom: 8px;
-}
-
-.energy-sense-heading p,
-.energy-comparison p {
-  color: #42556d;
-  line-height: 1.6;
-}
-
-.energy-appliances {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.energy-appliance {
-  display: grid;
-  grid-template-rows: auto auto 1fr auto auto;
-  gap: 8px;
-  min-width: 0;
-  padding: 12px 14px 15px;
-  border: 1px solid #dbe4ef;
-  border-radius: 14px;
+  width: min(calc(100% - 20px), 1120px);
+  margin: 9px auto 10px;
+  padding: clamp(16px, 2vw, 32px);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   background: #fff;
 }
 
-.energy-appliance img {
-  display: block;
-  width: 100%;
-  height: clamp(100px, 16vw, 200px);
+.energy-sense-scenario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+#energySenseImage {
+  width: clamp(110px, 23vw, 200px);
+  height: auto;
+  aspect-ratio: 200 / 136;
+  flex: 0 0 auto;
   object-fit: contain;
+  border-radius: 8px;
+  background: #fff;
 }
 
-.energy-appliance .energy-photo-cover {
-  object-fit: cover;
-  object-position: 57% center;
-  border-radius: 6px;
+#energySenseReveal {
+  color: #a74c0b;
+  background: #fff6eb;
+  border-color: #f3ae6a;
 }
 
-.energy-appliance h3 {
-  font-size: 19px;
+.energy-sense-details {
+  display: grid;
+  gap: 5px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #dbe4ef;
+  color: #42556d;
+  line-height: 1.55;
 }
 
-.energy-model {
-  color: #2b5279;
-  font-size: 13px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.energy-power {
-  color: #41566c;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-.energy-use {
-  border-top: 1px solid #e2eaf3;
-  padding-top: 8px;
+.energy-sense-details a {
   color: #124d99;
+}
+
+#energySenseUnit {
   white-space: nowrap;
-  font-variant-numeric: tabular-nums;
-}
-
-.energy-use strong {
-  font-size: clamp(20px, 2.5vw, 33px);
-}
-
-.energy-comparison {
-  padding: 12px 16px;
-  border: 1px solid #d9e7f6;
-  border-radius: 10px;
-  background: #eef5fc;
-}
-
-.energy-comparison strong {
-  color: #152b45;
-}
-
-@media (max-width: 1000px) {
-  .energy-appliances {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 168px), 1fr));
-  }
-}
-
-@media (max-width: 800px) {
-  .energy-sense {
-    padding-inline: 10px;
-  }
 }

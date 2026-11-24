@@ -246,7 +246,90 @@
   }
 
   readingMode.addEventListener('click', () => showEnergySense(false));
-  senseMode.addEventListener('click', () => showEnergySense(true));
+  const appliances = [
+    { name: '台灯', model: '米家台灯 1S · MJTD01SYL', image: 'desk-lamp', watts: 9,
+      rating: '额定功率', source: 'https://www.mi.com/mjsmartlamp-1s/specs' },
+    { name: '电风扇', model: '米家落地扇 1X · BPL DS01DM', image: 'standing-fan', watts: 15,
+      rating: '额定功率', source: 'https://www.mi.com/airfan1x/specs' },
+    { name: '电视', model: 'Xiaomi TV A 55 · 55 英寸', image: 'television', watts: 120,
+      rating: '整机功率', source: 'https://www.mi.com/global/support/faq/details/KA-79013/' },
+    { name: '挂式空调', model: '美的 KFR-35GW/YC1', image: 'wall-air-conditioner', watts: 845,
+      rating: '额定制冷耗电功率', source: 'https://dsdcp.smartmidea.net/mcsp/prod/20250120/a7f650d84b864f54b8996203b37186fd.pdf',
+      note: '变频空调的实际功率会随运行状态变化。' },
+    { name: '电热水壶', model: '米家电水壶 1.5 L · MJDSH01YM', image: 'electric-kettle', watts: 1800,
+      rating: '额定功率', source: 'https://www.mi.com/electric-kettle/specs',
+      note: '这里按持续加热 1 小时换算。日常烧水通常只加热几分钟。' },
+  ];
+  const senseGuess = element('energySenseGuess');
+  const senseFeedback = element('energySenseFeedback');
+  const seenReferences = new Set();
+  const estimateFormatter = new Intl.NumberFormat('zh-CN', { maximumSignificantDigits: 5 });
+  let senseQuestion;
+  let remainingAppliances = [];
+
+  function nextSenseQuestion() {
+    if (remainingAppliances.length === 0) remainingAppliances = [...appliances];
+    const choices = remainingAppliances.filter((appliance) => appliance !== senseQuestion);
+    senseQuestion = choices[Math.floor(Math.random() * choices.length)];
+    remainingAppliances = remainingAppliances.filter((appliance) => appliance !== senseQuestion);
+
+    element('energySenseName').textContent = senseQuestion.name;
+    const picture = element('energySenseImage');
+    picture.alt = senseQuestion.name + '外观';
+    picture.src = 'assets/energy-meter/' + senseQuestion.image + '.webp';
+    element('energySenseValue').textContent = '先估计，再看参考值';
+    element('energySenseDetails').hidden = true;
+    senseFeedback.hidden = true;
+    senseGuess.value = '';
+  }
+
+  function revealSenseReference() {
+    const { watts, rating, model, source, note, image } = senseQuestion;
+    const reference = (watts / 1000).toFixed(3);
+    const power = String(watts).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    element('energySenseValue').textContent = '参考用电量：' + reference + ' kW · h';
+
+    const sourceLink = element('energySenseSource');
+    sourceLink.href = source;
+    sourceLink.textContent = model + '（厂家参数）';
+    element('energySenseCalculation').textContent =
+      rating + ' ' + power + ' W，按此功率工作 1 小时，用电 ' + reference + ' kW · h。';
+    const noteLine = element('energySenseNote');
+    noteLine.textContent = note || '';
+    noteLine.hidden = !note;
+    seenReferences.add(image);
+    element('energySenseComparison').hidden =
+      !(['television', 'electric-kettle'].includes(image) &&
+        seenReferences.has('television') && seenReferences.has('electric-kettle'));
+    element('energySenseDetails').hidden = false;
+  }
+
+  element('energySenseNext').addEventListener('click', nextSenseQuestion);
+  element('energySenseReveal').addEventListener('click', revealSenseReference);
+  element('energySenseForm').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const value = senseGuess.value.trim().replace(/．/g, '.');
+    if (!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(value)) {
+      senseFeedback.textContent = '请先输入一个大于或等于 0 的估计值。';
+      senseFeedback.hidden = false;
+      senseGuess.focus();
+      return;
+    }
+    revealSenseReference();
+    const guess = Number(value);
+    const reference = senseQuestion.watts / 1000;
+    const guessText = estimateFormatter.format(guess);
+    senseFeedback.textContent = guess === reference
+      ? '你估计了 ' + guessText + ' kW · h，与参考值一致。'
+      : '你估计了 ' + guessText + ' kW · h，比参考值' + (guess > reference ? '高 ' : '低 ') +
+        estimateFormatter.format(Math.abs(guess - reference)) + ' kW · h。';
+    senseFeedback.hidden = false;
+  });
+
+  senseMode.addEventListener('click', () => {
+    if (!senseQuestion) nextSenseQuestion();
+    showEnergySense(true);
+  });
 
   typeButtons.forEach((button) => {
     button.addEventListener('click', () => {
