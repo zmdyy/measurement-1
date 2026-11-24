@@ -2186,6 +2186,11 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
   const txt=(x,y,value,size=22)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${size}" fill="#222" font-family="Arial,Microsoft YaHei,sans-serif">${value}</text>`;
   function instrument(prefix){
     const py=300+q.force/q.spec.max*300,hook=730+q.force/q.spec.max*35;
+    const pointerScale=prefix==='springZoom'?2:1;
+    const pointerHalfWidth=6*pointerScale,pointerHalfHeight=1.4*pointerScale;
+    const pointerClearance=1.25;
+    const tickInnerLeft=Math.min(242,250-pointerHalfWidth-pointerClearance);
+    const tickInnerRight=500-tickInnerLeft;
     let svg=`<defs><linearGradient id="${prefix}Metal"><stop stop-color="#777"/><stop offset=".35" stop-color="#eee"/><stop offset=".7" stop-color="#b7b7b7"/><stop offset="1" stop-color="#666"/></linearGradient></defs><circle cx="250" cy="77" r="62" fill="none" stroke="url(#${prefix}Metal)" stroke-width="12"/><rect x="222" y="111" width="56" height="40" fill="#c4c8ca"/>
       <path d="M155 153Q250 102 345 153V682Q250 727 155 682Z" fill="#277583"/><path d="M162 212Q196 193 220 193Q250 146 280 193Q310 194 338 212V638Q250 677 162 638Z" fill="white" stroke="#aab3b5" stroke-width="2"/>
       ${txt(250,219,q.spec.max+' N',25)}${txt(250,249,'条形盒',22)}${txt(250,276,'测力计',22)}${txt(180,291,'N',21)}${txt(320,291,'N',21)}
@@ -2193,8 +2198,8 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
     // The coil extends as the pointer moves down. The rod and hook carry the load.
     let coil='M244 285';for(let i=0;i<20;i++)coil+=`L${i%2?244:256} ${285+(py-285)*(i+1)/20}`;
     svg+=`<path d="${coil}" fill="none" stroke="#ddd" stroke-width="2.5"/><rect x="243" y="${py}" width="14" height="${hook-24-py}" fill="url(#${prefix}Metal)"/>`;
-    for(let i=0;i<=Math.round(q.spec.max/q.spec.step);i++){const y=300+i*q.spec.step/q.spec.max*300,major=i%q.spec.major===0,len=major?32:19;svg+=`<path data-tick="${i}" d="M${242-len} ${y}H242M258 ${y}H${258+len}" stroke="#272727" stroke-width="1.5"/>`;if(major){const label=Number((i*q.spec.step).toFixed(1));svg+=txt(191,y+7,label,22)+txt(309,y+7,label,22);}}
-    svg+=`<path data-pointer="${q.ticks}" data-pointer-clearance="1.25" d="M244 ${py}L250 ${py-1.4}L256 ${py}L250 ${py+1.4}Z" fill="#c9222b"/>
+    for(let i=0;i<=Math.round(q.spec.max/q.spec.step);i++){const y=300+i*q.spec.step/q.spec.max*300,major=i%q.spec.major===0,len=major?32:19;svg+=`<path data-tick="${i}" d="M${242-len} ${y}H${tickInnerLeft}M${tickInnerRight} ${y}H${258+len}" stroke="#272727" stroke-width="1.5"/>`;if(major){const label=Number((i*q.spec.step).toFixed(1));svg+=txt(191,y+7,label,22)+txt(309,y+7,label,22);}}
+    svg+=`<path data-pointer="${q.ticks}" data-pointer-clearance="${pointerClearance}" d="M${250-pointerHalfWidth} ${py}L250 ${py-pointerHalfHeight}L${250+pointerHalfWidth} ${py}L250 ${py+pointerHalfHeight}Z" fill="#c9222b"/>
       <path d="M230 695V${hook-27}Q250 ${hook-7} 270 ${hook-27}V695" fill="none" stroke="#c7cbce" stroke-width="9"/><path d="M250 ${hook-26}C279 ${hook-24} 250 ${hook-4} 240 ${hook+7}C218 ${hook+33} 257 ${hook+43} 269 ${hook+16}" fill="none" stroke="#898d90" stroke-width="6"/><path d="M250 ${hook-26}C279 ${hook-24} 250 ${hook-4} 240 ${hook+7}C218 ${hook+33} 257 ${hook+43} 269 ${hook+16}" fill="none" stroke="#e3e5e6" stroke-width="2"/>`;
     return svg;
   }
