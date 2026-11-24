@@ -9,13 +9,13 @@
   const typeButtons = panel.querySelectorAll('[data-energy-type]');
   const segments = ['abcdef', 'bc', 'abdeg', 'abcdg', 'bcfg', 'acdfg', 'acdefg', 'abc', 'abcdefg', 'abcdfg'];
   const segmentPaths = {
-    a: 'M6 0h27l4 4-5 4H6L2 4Z',
-    b: 'M35 9l5-4 4 4-2 17-5 4-4-4Z',
-    c: 'M32 36l5-4 4 4-2 17-5 5-4-5Z',
-    d: 'M4 53h25l4 5-5 4H3l-3-4Z',
-    e: 'M0 36l5-4 4 4-2 17-5 5-4-5Z',
-    f: 'M3 9l5-4 4 4-2 17-5 4-4-4Z',
-    g: 'M7 27h26l4 4-5 4H6l-4-4Z',
+    a: 'M5.5 0h21l2.7 2.7-2.7 2.7h-21L2.8 2.7Z',
+    b: 'M29.3 6.4 32 9.1v13.7l-2.7 2.7-2.7-2.7V9.1Z',
+    c: 'M29.3 31.7 32 34.4v13.7l-2.7 2.7-2.7-2.7V34.4Z',
+    d: 'M5.5 51.8h21l2.7 2.7-2.7 2.7h-21l-2.7-2.7Z',
+    e: 'M2.7 31.7 5.4 34.4v13.7l-2.7 2.7L0 48.1V34.4Z',
+    f: 'M2.7 6.4 5.4 9.1v13.7l-2.7 2.7L0 22.8V9.1Z',
+    g: 'M5.5 25.9h21l2.7 2.7-2.7 2.7h-21l-2.7-2.7Z',
   };
   const types = {
     mechanical: { decimals: 1, explanation: '黑色字轮读整数，最右侧红色字轮读十分位。' },
@@ -110,17 +110,17 @@
   }
 
   function electronicFace() {
-    let x = 106;
+    let x = 134;
     const digits = [...reading].map((char) => {
       const left = x;
       if (char === '.') {
-        x += 15;
-        return `<rect class="energy-decimal" x="${left - 1}" y="253" width="7" height="7" rx=".65"/>`;
+        x += 13;
+        return `<circle class="energy-decimal" cx="${left + 1}" cy="252.5" r="2.9"/>`;
       }
-      x += 47;
+      x += 42;
       const paths = [...segments[Number(char)]].map((id) =>
         `<path data-segment="${id}" d="${segmentPaths[id]}"/>`);
-      return `<g class="energy-lcd-digit" transform="translate(${left} 200)">${paths.join('')}</g>`;
+      return `<g class="energy-lcd-digit" transform="translate(${left} 198) skewX(-3)">${paths.join('')}</g>`;
     }).join('');
     let barcodeX = 118;
     const bars = Array.from({ length: 45 }, (_, index) => {
