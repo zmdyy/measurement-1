@@ -1570,15 +1570,15 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" data-tab="watch">&#x23F1; &#x79D2;&#x8868;&#x7EC3;&#x4E60;</button>
-  <button class="tab-btn" data-tab="ruler">&#x1F4CF; &#x523B;&#x5EA6;&#x5C3A;&#x7EC3;&#x4E60;</button>
+  <button class="tab-btn active" data-tab="ruler">&#x1F4CF; &#x523B;&#x5EA6;&#x5C3A;&#x7EC3;&#x4E60;</button>
+  <button class="tab-btn" data-tab="watch">&#x23F1; &#x79D2;&#x8868;&#x7EC3;&#x4E60;</button>
   <button class="tab-btn" data-tab="thermo">&#x1F321;&#xFE0F; &#x6E29;&#x5EA6;&#x8BA1;&#x7EC3;&#x4E60;</button>
+  <button class="tab-btn" data-tab="balance">⚖ 托盘天平练习</button>
+  <button class="tab-btn" data-tab="cylinder">▥ 量筒练习</button>
+  <button class="tab-btn" data-tab="spring">↕ 弹簧测力计练习</button>
   <button class="tab-btn" data-tab="ammeter">Ⓐ 电流表练习</button>
   <button class="tab-btn" data-tab="voltmeter">Ⓥ 电压表练习</button>
   <button class="tab-btn" data-tab="energy-meter">电能表练习</button>
-  <button class="tab-btn" data-tab="balance">⚖ 托盘天平练习</button>
-  <button class="tab-btn" data-tab="spring">↕ 弹簧测力计练习</button>
-  <button class="tab-btn" data-tab="cylinder">▥ 量筒练习</button>
 </div>
 
 <div class="tab-panel" id="tab-watch">
@@ -3611,7 +3611,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   /* ==============================
      标签页切换
      ============================== */
-  var currentTab = "watch";
+  var currentTab = "ruler";
   function switchTab(tab) {
     currentTab = tab;
     document.getElementById("tab-cylinder").classList.toggle("active", tab === "cylinder");
@@ -5532,7 +5532,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
       btn.classList.add('next-question');btn.textContent='🎲 换一题';
     }
   });
-  switchTab("watch");
+  switchTab("ruler");
 })();
 </script>
 <script src="assets/energy-meter/practice.js?v=lcd-4"></script>
