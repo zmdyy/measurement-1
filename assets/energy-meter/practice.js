@@ -231,7 +231,9 @@
     }
   });
   element('energyReveal').addEventListener('click', () => {
-    setFeedback(answerText() + '。' + types[kind].explanation);
+    element('modalContent').innerHTML = `<div class="big" style="white-space:normal">标准读数：${answerText()}</div>
+      <div class="detail">${types[kind].explanation}</div>`;
+    element('answerOverlay').classList.add('show');
   });
   element('energyNext').addEventListener('click', newQuestion);
   typeButtons.forEach((button) => {
