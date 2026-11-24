@@ -94,14 +94,14 @@
       <text x="260" y="155" text-anchor="middle" font-size="21" font-weight="600">DD862 型单相电能表</text>
       <rect x="109" y="172" width="255" height="73" rx="2" fill="#16191b"/>
       ${wheels}
-      <text x="373" y="210" font-size="15" font-weight="600">kWh</text>
+      <text x="373" y="210" font-size="12" font-weight="600">kW · h</text>
       <path d="M258 285h8l-4 6Z" fill="#9f2e2b"/>
       <rect x="148" y="296" width="223" height="17" rx="5" fill="#1a1d1f" stroke="#686d6e" stroke-width="1.25"/>
       <rect x="165" y="301" width="188" height="7" rx="1.5" fill="url(#energyDiskEdge)"/>
       <path d="M251 304.5h18" stroke="#a83530" stroke-width="3"/>
       <path d="M377 304h19m-6-3 6 3-6 3" stroke="#292c2c" stroke-width="1.2" fill="none"/>
       <text x="260" y="352" text-anchor="middle" font-size="17" font-weight="600">220 V　5(20) A　50 Hz</text>
-      <text x="120" y="381" font-size="15">720 r/kWh</text>
+      <text x="120" y="381" font-size="15">720 r/(kW · h)</text>
       <text x="405" y="381" text-anchor="end" font-size="13">GB/T 17215.311-2008</text>
       <path d="M120 392H404" stroke="#565957" stroke-width=".8"/>
       <text x="122" y="416" font-size="13" fill="#555953">No. DD862-01</text>
@@ -169,7 +169,7 @@
       <path d="M104 180H416M104 182V280" stroke="#edf2e7" stroke-opacity=".58" stroke-width="1.2" fill="none"/>
       <path d="M104 281H416V181" stroke="#555e50" stroke-opacity=".35" fill="none"/>
       <g fill="#222b23">${digits}</g>
-      <text x="408" y="279" text-anchor="end" fill="#2e3b32" font-size="14" font-weight="700">kWh</text>
+      <text x="408" y="279" text-anchor="end" fill="#2e3b32" font-size="14" font-weight="700">kW · h</text>
       <circle cx="114" cy="317" r="7.6" fill="#78817a" stroke="#565e57" stroke-width="1"/>
       <circle cx="114" cy="317" r="4.1" fill="#7b2224"/>
       <circle cx="112.5" cy="315.5" r="1.25" fill="#e39a90" opacity=".75"/>
@@ -178,7 +178,7 @@
       <path d="M398 314q4-4 8-1" stroke="#d1d8cf" stroke-opacity=".6" fill="none"/>
       <path d="M109 338H411" stroke="#9ca396" stroke-width=".85"/>
       <text x="111" y="362" font-size="17" font-weight="600">220 V　50 Hz　0.25–0.5(60) A</text>
-      <text x="111" y="386" font-size="16" font-weight="600">1600 imp/kWh</text>
+      <text x="111" y="386" font-size="16" font-weight="600">1600 imp/(kW · h)</text>
       <text x="411" y="386" text-anchor="end" font-size="12">GB/T 17215.321-2021</text>
       <rect x="110" y="405" width="300" height="52" rx="1.5" fill="#f6f5ee" stroke="#c6c8bc" stroke-width=".6"/>
       <g fill="#373a37">${bars}</g>
@@ -213,7 +213,7 @@
   }
 
   function answerText() {
-    return Number(reading).toFixed(types[kind].decimals) + ' kWh';
+    return Number(reading).toFixed(types[kind].decimals) + ' kW · h';
   }
 
   element('energyForm').addEventListener('submit', (event) => {
@@ -236,6 +236,18 @@
     element('answerOverlay').classList.add('show');
   });
   element('energyNext').addEventListener('click', newQuestion);
+  const readingMode = element('energyReadingMode');
+  const senseMode = element('energySenseMode');
+  function showEnergySense(show) {
+    element('energyReading').hidden = show;
+    element('energySense').hidden = !show;
+    readingMode.setAttribute('aria-pressed', String(!show));
+    senseMode.setAttribute('aria-pressed', String(show));
+  }
+
+  readingMode.addEventListener('click', () => showEnergySense(false));
+  senseMode.addEventListener('click', () => showEnergySense(true));
+
   typeButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const next = button.dataset.energyType;

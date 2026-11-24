@@ -2313,8 +2313,12 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 })();
 </script>
 
-<section class="tab-panel" id="tab-energy-meter" aria-label="电能表读数练习">
-  <div class="energy-layout">
+<section class="tab-panel" id="tab-energy-meter" aria-label="电能表练习">
+  <div class="energy-modes" role="group" aria-label="电能学习内容">
+    <button class="btn" id="energyReadingMode" type="button" aria-pressed="true" aria-controls="energyReading">电能表读数</button>
+    <button class="btn" id="energySenseMode" type="button" aria-pressed="false" aria-controls="energySense">电能感</button>
+  </div>
+  <div class="energy-layout" id="energyReading">
     <div class="energy-stage">
       <svg id="energyMeterFace" viewBox="0 0 520 650" role="img"></svg>
     </div>
@@ -2328,7 +2332,7 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
         <label for="energyInput">累计用电量</label>
         <div class="energy-entry">
           <input id="energyInput" type="text" inputmode="decimal" autocomplete="off" placeholder="输入读数">
-          <span>kWh</span>
+          <span>kW · h</span>
         </div>
         <div class="energy-actions energy-submit">
           <button class="btn primary" type="submit">检查</button>
@@ -2339,6 +2343,53 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
       <button class="btn next-question" id="energyNext" type="button">🎲 换一题</button>
     </div>
   </div>
+  <section id="energySense" class="energy-sense" aria-labelledby="energySenseHeading" hidden>
+    <div class="energy-sense-heading">
+      <h2 id="energySenseHeading">家用电器使用 1 小时，用多少电？</h2>
+      <p>按厂家标注功率持续工作 1 小时计算。1 kW · h = 1 度电。</p>
+    </div>
+    <div class="energy-appliances">
+      <article class="energy-appliance">
+        <img src="assets/energy-meter/desk-lamp.webp" alt="米家台灯 1S 正面外观" loading="lazy">
+        <h3>台灯</h3>
+        <a class="energy-model" href="https://www.mi.com/mjsmartlamp-1s/specs">米家台灯 1S · MJTD01SYL</a>
+        <p class="energy-power">额定功率 <strong>9 W</strong></p>
+        <p class="energy-use"><strong>0.009</strong> kW · h</p>
+      </article>
+      <article class="energy-appliance">
+        <img src="assets/energy-meter/standing-fan.webp" alt="米家直流变频落地扇 1X 正面外观" loading="lazy">
+        <h3>电风扇</h3>
+        <a class="energy-model" href="https://www.mi.com/airfan1x/specs">米家落地扇 1X · BPL DS01DM</a>
+        <p class="energy-power">额定功率 <strong>15 W</strong></p>
+        <p class="energy-use"><strong>0.015</strong> kW · h</p>
+      </article>
+      <article class="energy-appliance">
+        <img src="assets/energy-meter/television.webp" alt="Xiaomi TV A 55 整机外观" loading="lazy">
+        <h3>电视</h3>
+        <a class="energy-model" href="https://www.mi.com/global/support/faq/details/KA-79013/">Xiaomi TV A 55 · 55 英寸</a>
+        <p class="energy-power">整机功率 <strong>120 W</strong></p>
+        <p class="energy-use"><strong>0.120</strong> kW · h</p>
+      </article>
+      <article class="energy-appliance">
+        <img src="assets/energy-meter/wall-air-conditioner.webp" alt="美的 KFR-35GW/YC1 室内挂机外观" loading="lazy">
+        <h3>挂式空调</h3>
+        <a class="energy-model" href="https://dsdcp.smartmidea.net/mcsp/prod/20250120/a7f650d84b864f54b8996203b37186fd.pdf">美的 KFR-35GW/YC1</a>
+        <p class="energy-power">额定制冷耗电功率 <strong>845 W</strong></p>
+        <p class="energy-use"><strong>0.845</strong> kW · h</p>
+      </article>
+      <article class="energy-appliance">
+        <img class="energy-photo-cover" src="assets/energy-meter/electric-kettle.webp" alt="米家 1.5 升电水壶外观" loading="lazy">
+        <h3>电热水壶</h3>
+        <a class="energy-model" href="https://www.mi.com/electric-kettle/specs">米家电水壶 1.5 L · MJDSH01YM</a>
+        <p class="energy-power">额定功率 <strong>1 800 W</strong></p>
+        <p class="energy-use"><strong>1.800</strong> kW · h</p>
+      </article>
+    </div>
+    <div class="energy-comparison">
+      <p><strong>电热水壶加热 4 分钟 ≈ 电视播放 1 小时</strong></p>
+      <p>按上表功率计算，两者都用电 0.120 kW · h。变频空调的功率会随运行状态变化。</p>
+    </div>
+  </section>
 </section>
 <section class="tab-panel" id="tab-ammeter" aria-label="电流表练习">
   <div class="amm-layout">
@@ -5535,6 +5586,6 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   switchTab("ruler");
 })();
 </script>
-<script src="assets/energy-meter/practice.js?v=answer-5"></script>
+<script src="assets/energy-meter/practice.js?v=energy-sense"></script>
 </body>
 </html>
