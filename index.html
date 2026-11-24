@@ -340,38 +340,6 @@
      ============================================================ */
   #tab-watch { overflow: hidden; }
 
-  /* —— 旅程导航条 —— */
-  .journey {
-    flex: 0 0 auto; display: flex; align-items: center; gap: 2px;
-    padding: 8px 14px; margin: 8px 12px 0; background: #ffffff;
-    border-radius: 14px; box-shadow: 0 1px 4px rgba(15,23,42,.08);
-    flex-wrap: wrap; position: relative; z-index: 5;
-  }
-  .j-node {
-    display: flex; align-items: center; gap: 6px;
-    border: 0; background: #f1f5f9; color: #64748b;
-    border-radius: 999px; padding: 7px 14px 7px 10px;
-    font-size: 15px; font-weight: 700; cursor: pointer;
-    transition: all .18s; line-height: 1.2;
-  }
-  .j-node .j-ic { font-size: 16px; }
-  .j-node:hover:not(.cur) { background: #e2e8f0; color: #334155; }
-  .j-node.cur {
-    background: #1e6fd9; color: #fff;
-    box-shadow: 0 3px 10px rgba(30,111,217,.35);
-    animation: jpulse 2.2s infinite;
-  }
-  .j-node.done { background: #dcfce7; color: #15803d; }
-  .j-node.cur.done { background: #1e6fd9; color: #fff; box-shadow: 0 3px 10px rgba(30,111,217,.35); }
-  .j-node.done::before { content: "\2713"; font-weight: 900; font-size: 13px; }
-  .j-arrow { color: #94a3b8; font-size: 18px; padding: 0 2px; font-weight: 700; }
-  .j-hint {
-    margin-left: auto; font-size: 13px; color: #64748b; font-weight: 600;
-    max-width: 44%; text-align: right; line-height: 1.45;
-  }
-  .j-hint b { color: #1e6fd9; }
-  @keyframes jpulse { 50% { box-shadow: 0 3px 16px rgba(30,111,217,.5); } }
-
   /* —— 工作区：舞台(左) + 任务卡(右) —— */
   .workspace {
     display: grid;
@@ -518,7 +486,6 @@
     #tab-watch .col-zoom { flex: 1 1 100%; flex-direction: row; }
     #tab-watch .zoom-card { flex: 1 1 0; }
     .quest-col { overflow: visible; }
-    .j-hint { display: none; }
   }
 
 
@@ -535,23 +502,6 @@
   .tab-btn.active { background:#e8f1ff; color:#1769d1; }
 
   #tab-watch { overflow:hidden; }
-  .journey {
-    margin:7px 10px 0; padding:6px 9px; border-radius:10px; box-shadow:0 1px 3px rgba(15,23,42,.05);
-    gap:4px; flex-wrap:nowrap; background:#fff;
-  }
-  .j-node {
-    padding:6px 12px; border-radius:7px; background:transparent; color:#7a8798;
-    font-size:13px; font-weight:700; box-shadow:none; animation:none !important;
-  }
-  .j-node .j-ic { display:none; }
-  .j-node.cur { background:#1769d1; color:#fff; box-shadow:none; }
-  .j-node.cur .j-ic { color:#fff; }
-  .j-node.done { background:#eef7f0; color:#2f7d46; }
-  .j-node.done .j-ic { color:#2f7d46; }
-  .j-node.done::before { display:none; }
-  .j-arrow { display:none; }
-  .j-hint { display:none; }
-
   .workspace {
     grid-template-columns:minmax(0,1fr) 318px;
     gap:12px; padding:9px 10px 10px;
@@ -736,7 +686,9 @@
      ========================================================== */
   .ruler-journey{flex:0 0 auto;display:flex;align-items:center;gap:0;margin:7px 10px 0;padding:5px 9px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(15,23,42,.05);}
   .rj-node{border:0;background:transparent;color:#7a8798;border-radius:7px;padding:7px 12px;font:700 13px/1.2 inherit;display:flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;}
-  .rj-node:hover{background:#f4f7fb;color:#334155}.rj-node.cur{background:#1769d1;color:#fff}.rj-node.done{background:#eef7f0;color:#2f7d46}.rj-num{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e8edf4;font-size:11px;color:#66758a}.rj-node.cur .rj-num{background:rgba(255,255,255,.2);color:#fff}.rj-node.done .rj-num{background:#d7efdc;color:#2f7d46}.rj-line{height:1px;width:18px;background:#dfe5ec}.rj-hint{margin-left:auto;color:#94a3b8;font-size:12px;white-space:nowrap}
+  .rj-node:hover{background:#f4f7fb;color:#334155}.rj-node.cur,.rj-node[aria-pressed="true"]{background:#1769d1;color:#fff}.rj-node.done{background:#eef7f0;color:#2f7d46}.rj-num{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#e8edf4;font-size:11px;color:#66758a}.rj-node.cur .rj-num,.rj-node[aria-pressed="true"] .rj-num{background:rgba(255,255,255,.2);color:#fff}.rj-node.done .rj-num{background:#d7efdc;color:#2f7d46}.rj-line{height:1px;width:18px;background:#dfe5ec}.rj-hint{margin-left:auto;color:#94a3b8;font-size:12px;white-space:nowrap}
+  #journeyBar{overflow-x:auto}
+  #journeyBar .rj-line{flex-shrink:0}
   .ruler-workspace-v3{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:12px;min-height:0;flex:1;padding:9px 10px 10px;overflow:hidden}
   .ruler-stage-v3{min-width:0;min-height:0;display:grid;grid-template-rows:minmax(300px,1fr) 116px auto;gap:8px}
   .ruler-tool-v3{min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
@@ -756,8 +708,6 @@
   @media (max-width:1180px){.ruler-workspace-v3{grid-template-columns:minmax(0,1fr);overflow-y:auto}.ruler-stage-v3{grid-template-rows:auto 100px auto}.ruler-quest-v3{overflow:visible}.rj-hint{display:none}.ruler-svg-wrap-v3{padding:8px}.ruler-answer-v3 .primary{margin-left:0}}
 
 
-  /* 五站导航统一编号视觉：秒表与刻度尺用同一种学习路径语言 */
-  #journeyBar .j-node{gap:7px}.#journeyBar .j-node::before{content:attr(data-go);display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;background:#e8edf4;color:#66758a;font-size:11px;font-weight:800}.#journeyBar .j-node.cur::before{background:rgba(255,255,255,.2);color:#fff}.#journeyBar .j-node.done::before{content:attr(data-go);display:inline-flex;background:#d7efdc;color:#2f7d46}.#journeyBar .j-ic{display:none!important}
   /* 刻度尺状态提示只表达“当前该做什么”，避免沿用秒表的“随机时刻”文案 */
   #tab-ruler .ruler-status-v3{font-size:11px;padding:3px 10px;line-height:1.2}
 
@@ -1561,7 +1511,7 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-q-card-v3 {padding:clamp(16px,2vw
 body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 
 </style>
-<link rel="stylesheet" href="assets/energy-meter/practice.css?v=flat-1">
+<link rel="stylesheet" href="assets/energy-meter/practice.css?v=journey-nav">
 </head>
 <body>
 <header>
@@ -1584,13 +1534,17 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 <div class="tab-panel" id="tab-watch">
 
 <!-- ================= 学习旅程条：思维链条导航 ================= -->
-<div class="journey" id="journeyBar" role="tablist" aria-label="学习旅程">
-  <button class="j-node cur" data-go="1" role="tab"><span class="j-ic">&#x1F50D;</span><span class="j-nm">认刻度</span></button><span class="j-arrow">&#x203A;</span>
-  <button class="j-node" data-go="2" role="tab"><span class="j-ic">&#x1F3AF;</span><span class="j-nm">读数闯关</span></button><span class="j-arrow">&#x203A;</span>
-  <button class="j-node" data-go="3" role="tab"><span class="j-ic">&#x1F575;&#xFE0F;</span><span class="j-nm">火眼金睛</span></button><span class="j-arrow">&#x203A;</span>
-  <button class="j-node" data-go="4" role="tab"><span class="j-ic">&#x23F1;&#xFE0F;</span><span class="j-nm">时间感</span></button><span class="j-arrow">&#x203A;</span>
-  <button class="j-node" data-go="5" role="tab"><span class="j-ic">&#x2696;&#xFE0F;</span><span class="j-nm">谁更准</span></button>
-  <span class="j-hint" id="journeyHint"></span>
+<div class="ruler-journey" id="journeyBar" role="tablist" aria-label="秒表学习旅程">
+  <button class="rj-node cur" data-go="1" role="tab" aria-selected="true"><span class="rj-num">1</span><span>认刻度</span></button>
+  <span class="rj-line" aria-hidden="true"></span>
+  <button class="rj-node" data-go="2" role="tab" aria-selected="false"><span class="rj-num">2</span><span>读数闯关</span></button>
+  <span class="rj-line" aria-hidden="true"></span>
+  <button class="rj-node" data-go="3" role="tab" aria-selected="false"><span class="rj-num">3</span><span>火眼金睛</span></button>
+  <span class="rj-line" aria-hidden="true"></span>
+  <button class="rj-node" data-go="4" role="tab" aria-selected="false"><span class="rj-num">4</span><span>时间感</span></button>
+  <span class="rj-line" aria-hidden="true"></span>
+  <button class="rj-node" data-go="5" role="tab" aria-selected="false"><span class="rj-num">5</span><span>谁更准</span></button>
+  <span id="journeyHint" hidden></span>
 </div>
 
 <div class="workspace">
@@ -2314,9 +2268,10 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 </script>
 
 <section class="tab-panel" id="tab-energy-meter" aria-label="电能表练习">
-  <div class="energy-modes" role="group" aria-label="电能学习内容">
-    <button class="btn" id="energyReadingMode" type="button" aria-pressed="true" aria-controls="energyReading">电能表读数</button>
-    <button class="btn" id="energySenseMode" type="button" aria-pressed="false" aria-controls="energySense">电能感</button>
+  <div class="ruler-journey" role="group" aria-label="电能学习内容">
+    <button class="rj-node" id="energyReadingMode" type="button" aria-pressed="true" aria-controls="energyReading"><span class="rj-num">1</span><span>电能表读数</span></button>
+    <span class="rj-line" aria-hidden="true"></span>
+    <button class="rj-node" id="energySenseMode" type="button" aria-pressed="false" aria-controls="energySense"><span class="rj-num">2</span><span>电能感</span></button>
   </div>
   <div class="energy-layout" id="energyReading">
     <div class="energy-stage">
@@ -4559,11 +4514,12 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
 
   function updateJourneyJewels() {
     var flags = [journeyDb.q1ok, journeyDb.readDone, journeyDb.diagDone, journeyDb.estDone, journeyDb.cmpDone];
-    var nodes = document.querySelectorAll("#journeyBar .j-node");
+    var nodes = document.querySelectorAll("#journeyBar [data-go]");
     for (var i = 0; i < nodes.length; i++) {
       var n = parseInt(nodes[i].getAttribute("data-go"), 10);
       nodes[i].classList.toggle("done", !!flags[n - 1]);
       nodes[i].classList.toggle("cur", n === cqState.curQuest);
+      nodes[i].setAttribute("aria-selected", String(n === cqState.curQuest));
     }
   }
 
@@ -4696,7 +4652,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   }
 
   /* —— 旅程元素绑定 —— */
-  var jNodes = document.querySelectorAll("#journeyBar .j-node");
+  var jNodes = document.querySelectorAll("#journeyBar [data-go]");
   for (var jn = 0; jn < jNodes.length; jn++) {
     (function (nd) {
       nd.addEventListener("click", function () {

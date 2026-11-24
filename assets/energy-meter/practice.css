@@ -149,19 +149,6 @@
   display: none;
 }
 
-.energy-modes {
-  display: flex;
-  gap: 8px;
-  flex: 0 0 auto;
-  padding: 12px 20px 0;
-}
-
-.energy-modes [aria-pressed="true"] {
-  border-color: #1e6fd9;
-  background: #e8f1ff;
-  color: #124d99;
-}
-
 .energy-sense {
   display: grid;
   gap: 20px;
@@ -259,8 +246,7 @@
 }
 
 @media (max-width: 800px) {
-  .energy-sense,
-  .energy-modes {
+  .energy-sense {
     padding-inline: 10px;
   }
 }
