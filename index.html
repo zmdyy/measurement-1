@@ -1561,6 +1561,7 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-q-card-v3 {padding:clamp(16px,2vw
 body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 
 </style>
+<link rel="stylesheet" href="assets/energy-meter/practice.css">
 </head>
 <body>
 <header>
@@ -1574,6 +1575,7 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
   <button class="tab-btn" data-tab="thermo">&#x1F321;&#xFE0F; &#x6E29;&#x5EA6;&#x8BA1;&#x7EC3;&#x4E60;</button>
   <button class="tab-btn" data-tab="ammeter">Ⓐ 电流表练习</button>
   <button class="tab-btn" data-tab="voltmeter">Ⓥ 电压表练习</button>
+  <button class="tab-btn" data-tab="energy-meter">电能表练习</button>
   <button class="tab-btn" data-tab="balance">⚖ 托盘天平练习</button>
   <button class="tab-btn" data-tab="spring">↕ 弹簧测力计练习</button>
   <button class="tab-btn" data-tab="cylinder">▥ 量筒练习</button>
@@ -2306,6 +2308,47 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 })();
 </script>
 
+<section class="tab-panel" id="tab-energy-meter" aria-label="电能表读数练习">
+  <div class="energy-layout">
+    <div class="energy-stage">
+      <div class="energy-stage-tools">
+        <span id="energyModelName">DD862 机械式</span>
+        <div class="energy-actions">
+          <button class="btn" type="button" id="energyFocus">对准读数窗</button>
+          <button class="btn" type="button" id="energyReset">复位视角</button>
+        </div>
+      </div>
+      <div id="energyViewer">
+        <p id="energyViewerMessage" role="status">正在加载三维模型…</p>
+      </div>
+      <p class="energy-muted" id="energyControls">拖动旋转 · 滚轮或双指缩放</p>
+    </div>
+    <div class="energy-card">
+      <h2>电能表读数</h2>
+      <div class="energy-types" role="group" aria-label="表型">
+        <button class="btn" type="button" data-energy-type="mechanical" aria-pressed="true">机械式</button>
+        <button class="btn" type="button" data-energy-type="electronic" aria-pressed="false">电子式</button>
+      </div>
+      <figure class="energy-detail">
+        <figcaption>读数窗放大</figcaption>
+        <svg id="energyDetail" viewBox="0 0 340 90" role="img"></svg>
+      </figure>
+      <form id="energyForm">
+        <label for="energyInput">累计用电量</label>
+        <div class="energy-entry">
+          <input id="energyInput" type="text" inputmode="decimal" autocomplete="off" placeholder="输入读数">
+          <span>kWh</span>
+        </div>
+        <div class="energy-actions energy-submit">
+          <button class="btn primary" type="submit">检查</button>
+          <button class="btn" id="energyReveal" type="button">查看答案</button>
+        </div>
+      </form>
+      <p id="energyFeedback" class="energy-feedback" role="status"></p>
+      <button class="btn next-question" id="energyNext" type="button">🎲 换一题</button>
+    </div>
+  </div>
+</section>
 <section class="tab-panel" id="tab-ammeter" aria-label="电流表练习">
   <div class="amm-layout">
     <div class="amm-stage"><svg id="ammSvg" viewBox="0 0 700 720" role="img" aria-label="双量程电流表，请观察接线柱与指针读数"></svg></div>
@@ -3585,6 +3628,7 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
     document.getElementById("tab-balance").classList.toggle("active", tab === "balance");
     document.getElementById("tab-ammeter").classList.toggle("active", tab === "ammeter");
     document.getElementById("tab-voltmeter").classList.toggle("active", tab === "voltmeter");
+    document.getElementById("tab-energy-meter").classList.toggle("active", tab === "energy-meter");
     document.querySelectorAll(".tab-btn").forEach(function (b) {
       b.classList.toggle("active", b.getAttribute("data-tab") === tab);
     });
@@ -5500,5 +5544,6 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   switchTab("watch");
 })();
 </script>
+<script src="assets/energy-meter/practice.js"></script>
 </body>
 </html>
