@@ -2311,17 +2311,7 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 <section class="tab-panel" id="tab-energy-meter" aria-label="电能表读数练习">
   <div class="energy-layout">
     <div class="energy-stage">
-      <div class="energy-stage-tools">
-        <span id="energyModelName">DD862 机械式</span>
-        <div class="energy-actions">
-          <button class="btn" type="button" id="energyFocus">对准读数窗</button>
-          <button class="btn" type="button" id="energyReset">复位视角</button>
-        </div>
-      </div>
-      <div id="energyViewer">
-        <p id="energyViewerMessage" role="status">正在加载三维模型…</p>
-      </div>
-      <p class="energy-muted" id="energyControls">拖动旋转 · 滚轮或双指缩放</p>
+      <svg id="energyMeterFace" viewBox="0 0 520 650" role="img"></svg>
     </div>
     <div class="energy-card">
       <h2>电能表读数</h2>
@@ -2329,10 +2319,6 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
         <button class="btn" type="button" data-energy-type="mechanical" aria-pressed="true">机械式</button>
         <button class="btn" type="button" data-energy-type="electronic" aria-pressed="false">电子式</button>
       </div>
-      <figure class="energy-detail">
-        <figcaption>读数窗放大</figcaption>
-        <svg id="energyDetail" viewBox="0 0 340 90" role="img"></svg>
-      </figure>
       <form id="energyForm">
         <label for="energyInput">累计用电量</label>
         <div class="energy-entry">
