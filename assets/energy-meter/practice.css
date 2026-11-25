@@ -166,14 +166,44 @@
   gap: 16px;
 }
 
-#energySenseImage {
-  width: clamp(110px, 23vw, 200px);
-  height: auto;
-  aspect-ratio: 200 / 136;
-  flex: 0 0 auto;
-  object-fit: contain;
+.energy-sense-picture {
+  flex: 0 0 44%;
+  min-width: 0;
+  height: clamp(210px, 23vw, 260px);
+  overflow: hidden;
   border-radius: 8px;
   background: #fff;
+}
+
+#energySenseImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* The square television and air conditioner photos have white space above and below the product. */
+#energySenseImage:is([data-appliance="television"], [data-appliance="wall-air-conditioner"], [data-appliance="electric-kettle"]) {
+  object-fit: cover;
+}
+
+#energySenseImage[data-appliance="electric-kettle"] {
+  object-position: 57% center;
+  transform: scale(1.3);
+}
+
+@media (max-width: 650px) {
+  .energy-sense-scenario {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .energy-sense-picture {
+    flex: none;
+    width: min(100%, 430px);
+    height: clamp(175px, 55vw, 260px);
+    margin-inline: auto;
+  }
 }
 
 #energySenseReveal {

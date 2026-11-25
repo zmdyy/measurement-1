@@ -1506,7 +1506,7 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-q-card-v3 {padding:clamp(16px,2vw
 body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
 
 </style>
-<link rel="stylesheet" href="assets/energy-meter/practice.css?v=energy-guess">
+<link rel="stylesheet" href="assets/energy-meter/practice.css?v=large-appliance">
 </head>
 <body>
 <header>
@@ -2299,7 +2299,9 @@ body[data-ruler-journey="4"] #tab-ruler .ruler-method-v3 {display:none;}
     <div class="rq-est-card">
       <div class="energy-sense-scenario">
         <p class="rq-est-task">先估一估：<strong id="energySenseName"></strong>使用 1 小时</p>
-        <img id="energySenseImage" width="200" height="136" alt="">
+        <div class="energy-sense-picture">
+          <img id="energySenseImage" alt="">
+        </div>
       </div>
       <p class="rq-est-big" id="energySenseValue" role="status">先估计，再看参考值</p>
       <form class="rq-est-row" id="energySenseForm">
@@ -5516,6 +5518,6 @@ createMeter('volt',{name:'电压表',unit:'V',small:3,large:15});
   switchTab("ruler");
 })();
 </script>
-<script src="assets/energy-meter/practice.js?v=energy-guess"></script>
+<script src="assets/energy-meter/practice.js?v=large-appliance"></script>
 </body>
 </html>

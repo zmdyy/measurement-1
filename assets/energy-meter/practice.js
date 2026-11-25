@@ -276,6 +276,7 @@
     element('energySenseName').textContent = senseQuestion.name;
     const picture = element('energySenseImage');
     picture.alt = senseQuestion.name + '外观';
+    picture.dataset.appliance = senseQuestion.image;
     picture.src = 'assets/energy-meter/' + senseQuestion.image + '.webp';
     element('energySenseValue').textContent = '先估计，再看参考值';
     element('energySenseDetails').hidden = true;
